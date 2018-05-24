@@ -60,29 +60,20 @@
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/scoped_ptr.hpp>
-#include <boost/tuple/tuple.hpp>
 
 namespace chronosync {
 
 using std::size_t;
 
 using boost::noncopyable;
-using boost::scoped_ptr;
 
 using std::bind;
-using std::const_pointer_cast;
 using std::cref;
-using std::dynamic_pointer_cast;
-using std::enable_shared_from_this;
 using std::function;
 using std::make_shared;
 using std::make_tuple;
 using std::ref;
 using std::shared_ptr;
-using std::static_pointer_cast;
-using std::weak_ptr;
 
 using ndn::Block;
 using ndn::ConstBufferPtr;
