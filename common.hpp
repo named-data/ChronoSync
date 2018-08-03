@@ -78,7 +78,6 @@ using std::shared_ptr;
 using ndn::Block;
 using ndn::ConstBufferPtr;
 using ndn::Data;
-using ndn::Exclude;
 using ndn::Interest;
 using ndn::Name;
 using ndn::security::v2::ValidationError;

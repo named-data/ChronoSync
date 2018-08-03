@@ -177,6 +177,7 @@ Socket::fetchData(const Name& sessionName, const SeqNo& seqNo,
 
   Interest interest(interestName);
   interest.setMustBeFresh(true);
+  interest.setCanBePrefix(false);
 
   DataValidationErrorCallback failureCallback =
     bind(&Socket::onDataValidationFailed, this, _1, _2);
@@ -202,6 +203,7 @@ Socket::fetchData(const Name& sessionName, const SeqNo& seqNo,
 
   Interest interest(interestName);
   interest.setMustBeFresh(true);
+  interest.setCanBePrefix(false);
 
   m_face.expressInterest(interest,
                          bind(&Socket::onData, this, _1, _2, dataCallback, failureCallback),

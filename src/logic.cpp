@@ -360,8 +360,7 @@ Logic::onSyncInterest(const Name& prefix, const Interest& interest)
   else if (name.size() >= 2 && RECOVERY_COMPONENT == name.get(-2)) {
     processRecoveryInterest(interest);
   }
-  // Do not process exclude interests, they should be answered by CS
-  else if (interest.getExclude().empty()) {
+  else {
     processSyncInterest(interest);
   }
 
@@ -379,22 +378,12 @@ void
 Logic::onSyncData(const Interest& interest, const Data& data)
 {
   _LOG_DEBUG_ID(">> Logic::onSyncData");
-  // if (static_cast<bool>(m_validator))
-  //   m_validator->validate(data,
-  //                         bind(&Logic::onSyncDataValidated, this, _1),
-  //                         bind(&Logic::onSyncDataValidationFailed, this, _1));
-  // else
-  //   onSyncDataValidated(data);
-
-  if (interest.getExclude().empty()) {
-    _LOG_DEBUG_ID("First data");
-    onSyncDataValidated(data);
-  }
-  else {
-    _LOG_DEBUG_ID("Data obtained using exclude filter");
-    onSyncDataValidated(data, false);
-  }
-  // sendExcludeInterest(interest, data);
+  if (m_validator != nullptr)
+    m_validator->validate(data,
+                          bind(&Logic::onSyncDataValidated, this, _1),
+                          bind(&Logic::onSyncDataValidationFailed, this, _1));
+  else
+     onSyncDataValidated(data);
 
   _LOG_DEBUG_ID("<< Logic::onSyncData");
 }
@@ -421,7 +410,7 @@ Logic::onSyncDataValidationFailed(const Data& data)
 }
 
 void
-Logic::onSyncDataValidated(const Data& data, bool firstData)
+Logic::onSyncDataValidated(const Data& data)
 {
   Name name = data.getName();
   ConstBufferPtr digest = make_shared<ndn::Buffer>(name.get(-1).value(), name.get(-1).value_size());
@@ -429,7 +418,7 @@ Logic::onSyncDataValidated(const Data& data, bool firstData)
   try {
     auto contentBuffer = bzip2::decompress(reinterpret_cast<const char*>(data.getContent().value()),
                                            data.getContent().value_size());
-    processSyncData(name, digest, Block(contentBuffer), firstData);
+    processSyncData(name, digest, Block(std::move(contentBuffer)));
   }
   catch (const std::ios_base::failure& error) {
     _LOG_WARN("Error decompressing content of " << data.getName() << " (" << error.what() << ")");
@@ -526,8 +515,7 @@ Logic::processResetInterest(const Interest& interest)
 void
 Logic::processSyncData(const Name& name,
                        ConstBufferPtr digest,
-                       const Block& syncReplyBlock,
-                       bool firstData)
+                       const Block& syncReplyBlock)
 {
   _LOG_DEBUG_ID(">> Logic::processSyncData");
   DiffStatePtr commit = make_shared<DiffState>();
@@ -577,7 +565,7 @@ Logic::processSyncData(const Name& name,
     return;
   }
 
-  if (static_cast<bool>(commit) && !commit->getLeaves().empty() && firstData) {
+  if (static_cast<bool>(commit) && !commit->getLeaves().empty()) {
     // state changed and it is safe to express a new interest
     time::steady_clock::Duration after = time::milliseconds(m_reexpressionJitter(m_rng));
     _LOG_DEBUG_ID("Reschedule sync interest after: " << after);
@@ -644,6 +632,7 @@ Logic::sendResetInterest()
 
   Interest interest(m_syncReset);
   interest.setMustBeFresh(true);
+  interest.setCanBePrefix(false); // no data is expected
   interest.setInterestLifetime(m_resetInterestLifetime);
   const ndn::PendingInterestId* pendingInterestId = m_face.expressInterest(interest,
     bind(&Logic::onResetData, this, _1, _2),
@@ -681,6 +670,7 @@ Logic::sendSyncInterest()
 
   Interest interest(interestName);
   interest.setMustBeFresh(true);
+  interest.setCanBePrefix(true);
   interest.setInterestLifetime(m_syncInterestLifetime);
 
   if (m_outstandingInterestId != nullptr) {
@@ -815,6 +805,7 @@ Logic::sendRecoveryInterest(ConstBufferPtr digest)
 
   Interest interest(interestName);
   interest.setMustBeFresh(true);
+  interest.setCanBePrefix(true);
   interest.setInterestLifetime(m_recoveryInterestLifetime);
 
   const ndn::PendingInterestId* pendingInterestId = m_face.expressInterest(interest,

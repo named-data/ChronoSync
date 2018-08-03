@@ -315,10 +315,9 @@ private:
    * This method simply passes the valid reply to processSyncData.
    *
    * @param data The valid Sync Reply.
-   * @param firstData Whether the data is new or that obtained using exclude filter
    */
   void
-  onSyncDataValidated(const Data& data, bool firstData = true);
+  onSyncDataValidated(const Data& data);
 
   /**
    * @brief Process normal Sync Interest
@@ -355,13 +354,11 @@ private:
    * @param name           The data name of the Sync Reply.
    * @param digest         The digest in the data name.
    * @param syncReplyBlock The content of the Sync Reply.
-   * @param firstData      Whether the data is new or obtained using exclude filter
    */
   void
   processSyncData(const Name& name,
                   ConstBufferPtr digest,
-                  const Block& syncReplyBlock,
-                  bool firstData);
+                  const Block& syncReplyBlock);
 
   /**
    * @brief Insert state diff into log
