@@ -1,6 +1,14 @@
 Release Notes
 =============
 
+## Version 0.5.2
+
+- The build requirements have been upgraded to gcc >= 5.3 or clang >= 3.6.
+  This effectively drops support for all versions of Ubuntu older
+  than 16.04 that use distribution-provided compilers and packages.
+
+- Transition to v0.3 packet format (Issues #4691 and #4684)
+
 ## Version 0.5.1
 
 - Fix forceful shutdown of `Face` when destructing `Logic` instance
