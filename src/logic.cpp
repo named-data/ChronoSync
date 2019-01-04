@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2018 University of California, Los Angeles
+ * Copyright (c) 2012-2019 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -121,7 +121,7 @@ Logic::Logic(ndn::Face& face,
   , m_needPeriodReset(resetTimer > time::steady_clock::Duration::zero())
   , m_onUpdate(onUpdate)
   , m_scheduler(m_face.getIoService())
-  , m_rng(std::random_device{}())
+  , m_rng(ndn::random::getRandomNumberEngine())
   , m_rangeUniformRandom(100, 500)
   , m_reexpressionJitter(100, 500)
   , m_resetTimer(resetTimer)
@@ -865,57 +865,5 @@ Logic::cleanupPendingInterest(const ndn::PendingInterestId* pendingInterestId)
     m_pendingInterests.erase(itr);
   }
 }
-
-// void
-// Logic::sendExcludeInterest(const Interest& interest, const Data& data)
-// {
-//   _LOG_DEBUG_ID(">> Logic::sendExcludeInterest");
-
-//   Name interestName = interest.getName();
-//   Interest excludeInterest(interestName);
-
-//   Exclude exclude = interest.getExclude();
-//   exclude.excludeOne(data.getFullName().get(-1));
-//   excludeInterest.setExclude(exclude);
-//   excludeInterest.setMustBeFresh(true);
-
-//   excludeInterest.setInterestLifetime(m_syncInterestLifetime);
-
-//   if (excludeInterest.wireEncode().size() > ndn::MAX_NDN_PACKET_SIZE) {
-//     return;
-//   }
-
-//   m_face.expressInterest(excludeInterest,
-//                          bind(&Logic::onSyncData, this, _1, _2),
-//                          bind(&Logic::onSyncTimeout, this, _1), // Nack
-//                          bind(&Logic::onSyncTimeout, this, _1));
-
-//   _LOG_DEBUG_ID("Send interest: " << excludeInterest.getName());
-//   _LOG_DEBUG_ID("<< Logic::sendExcludeInterest");
-// }
-
-// void
-// Logic::formAndSendExcludeInterest(const Name& nodePrefix, const State& commit, ConstBufferPtr previousRoot)
-// {
-//   _LOG_DEBUG_ID(">> Logic::formAndSendExcludeInterest");
-//   Name interestName;
-//   interestName.append(m_syncPrefix)
-//               .append(ndn::name::Component(*previousRoot));
-//   Interest interest(interestName);
-
-//   Data data(interestName);
-//   data.setContent(commit.wireEncode());
-//   data.setFreshnessPeriod(m_syncReplyFreshness);
-//   if (m_nodeList.find(nodePrefix) == m_nodeList.end())
-//     return;
-//   if (m_nodeList[nodePrefix].signingId.empty())
-//     m_keyChain.sign(data);
-//   else
-//     m_keyChain.sign(data, security::signingByIdentity(m_nodeList[nodePrefix].signingId));
-
-//   sendExcludeInterest(interest, data);
-
-//   _LOG_DEBUG_ID("<< Logic::formAndSendExcludeInterest");
-// }
 
 } // namespace chronosync

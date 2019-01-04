@@ -405,8 +405,8 @@ def check_boost(self, *k, **kw):
 
 	self.find_program('dpkg-architecture', var='DPKG_ARCHITECTURE', mandatory=False)
 	if self.env.DPKG_ARCHITECTURE:
-		deb_host_multiarch = Utils.subprocess.check_output([self.env.DPKG_ARCHITECTURE[0], '-qDEB_HOST_MULTIARCH']).strip()
-		BOOST_LIBS.insert(0, '/usr/lib/%s' % deb_host_multiarch)
+		deb_host_multiarch = self.cmd_and_log([self.env.DPKG_ARCHITECTURE[0], '-qDEB_HOST_MULTIARCH'])
+		BOOST_LIBS.insert(0, '/usr/lib/%s' % deb_host_multiarch.strip())
 
 	self.start_msg('Checking boost includes')
 	self.env['INCLUDES_%s' % var] = inc = self.boost_get_includes(**params)
