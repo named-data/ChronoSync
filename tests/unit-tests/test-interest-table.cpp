@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2017 University of California, Los Angeles
+ * Copyright (c) 2012-2019 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -18,8 +18,9 @@
  */
 
 #include "interest-table.hpp"
-#include "boost-test.hpp"
-#include "../unit-test-time-fixture.hpp"
+
+#include "tests/boost-test.hpp"
+#include "tests/unit-test-time-fixture.hpp"
 
 #include <unistd.h>
 

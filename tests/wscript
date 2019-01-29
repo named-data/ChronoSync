@@ -1,28 +1,10 @@
 # -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
-from waflib import Utils
 
 top = '..'
 
 def build(bld):
-    bld.objects(
-        target='tests-main',
-        source='main.cpp',
-        use='ChronoSync',
-        defines=['BOOST_TEST_MODULE=ChronoSync'])
-
-    bld.program(
-        target="../unit-tests",
-        name='unit-tests',
-        source=bld.path.ant_glob(['unit-tests/**/*.cpp', 'identity-management-fixture.cpp']),
-        use='ChronoSync tests-main',
-        includes=['.'],
-        install_path=None)
-
-    # TODO: Re-enable when there integration tests are implemented
-    # bld.program(
-    #     target="../integrated-tests",
-    #     source=bld.path.ant_glob(['integrated-tests/**/*.cpp']),
-    #     use='ChronoSync tests-main',
-    #     includes=['.'],
-    #     install_path=None,
-    #     )
+    bld.program(target='../unit-tests',
+                name='unit-tests',
+                source=bld.path.ant_glob('**/*.cpp'),
+                use='ChronoSync',
+                install_path=None)

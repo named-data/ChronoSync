@@ -14,7 +14,7 @@ def options(opt):
              tooldir=['.waf-tools'])
 
     opt.add_option('--with-tests', action='store_true', default=False,
-                   dest='with_tests', help='''Build unit tests''')
+                   help='Build unit tests')
 
 def configure(conf):
     conf.load(['compiler_c', 'compiler_cxx', 'gnu_dirs',
@@ -48,30 +48,27 @@ def configure(conf):
     conf.write_config_header('config.hpp')
 
 def build(bld):
-    bld.shlib(
-        target='ChronoSync',
-        vnum = VERSION,
-        cnum = VERSION,
-        source =  bld.path.ant_glob(['src/**/*.cpp', 'src/**/*.proto']),
-        use = 'BOOST NDN_CXX',
-        includes = ['src', '.'],
-        export_includes=['src', '.'])
+    bld.shlib(target='ChronoSync',
+              vnum=VERSION,
+              cnum=VERSION,
+              source=bld.path.ant_glob('src/**/*.cpp'),
+              use='NDN_CXX BOOST',
+              includes='src .',
+              export_includes='src .')
 
-    # Unit tests
-    if bld.env["CHRONOSYNC_HAVE_TESTS"]:
+    if bld.env['CHRONOSYNC_HAVE_TESTS']:
         bld.recurse('tests')
 
     bld.install_files(
         dest = '%s/ChronoSync' % bld.env['INCLUDEDIR'],
         files = bld.path.ant_glob(['src/*.hpp', 'common.hpp']),
-        cwd = bld.path.find_dir("src"),
-        relative_trick = False,
-        )
+        cwd = bld.path.find_dir('src'),
+        relative_trick = False)
 
     bld.install_files(
         dest = '%s/ChronoSync' % bld.env['INCLUDEDIR'],
         files = bld.path.get_bld().ant_glob(['src/*.hpp', 'common.hpp', 'config.hpp']),
-        cwd = bld.path.get_bld().find_dir("src"),
+        cwd = bld.path.get_bld().find_dir('src'),
         relative_trick = False)
 
     bld(features = 'subst',

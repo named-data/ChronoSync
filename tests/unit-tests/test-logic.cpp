@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2018 University of California, Los Angeles
+ * Copyright (c) 2012-2019 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -20,17 +20,15 @@
 #include "logic.hpp"
 #include "bzip2-helper.hpp"
 
-#include "boost-test.hpp"
-#include "../identity-management-fixture.hpp"
-
-#include "dummy-forwarder.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/identity-management-fixture.hpp"
+#include "tests/unit-tests/dummy-forwarder.hpp"
 
 #include <ndn-cxx/util/random.hpp>
 
 namespace chronosync {
 namespace test {
 
-using std::vector;
 using ndn::chronosync::DummyForwarder;
 
 class Handler
@@ -47,7 +45,7 @@ public:
   }
 
   void
-  onUpdate(const vector<MissingDataInfo>& v)
+  onUpdate(const std::vector<MissingDataInfo>& v)
   {
     for (size_t i = 0; i < v.size(); i++) {
       update(v[i].session, v[i].high, v[i].low);
@@ -99,8 +97,8 @@ public:
 
 BOOST_FIXTURE_TEST_SUITE(LogicTests, LogicFixture)
 
-void
-onUpdate(const vector<MissingDataInfo>& v)
+static void
+onUpdate(const std::vector<MissingDataInfo>& v)
 {
 }
 
@@ -443,6 +441,7 @@ public:
       setenv("CHRONOSYNC_MAX_PACKET_SIZE", oldSize->c_str(), 1);
     }
   }
+
 private:
   ndn::optional<std::string> oldSize;
 };

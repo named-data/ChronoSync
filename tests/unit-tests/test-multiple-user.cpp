@@ -1,12 +1,28 @@
+/* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
+/*
+ * Copyright (c) 2012-2019 University of California, Los Angeles
+ *
+ * This file is part of ChronoSync, synchronization library for distributed realtime
+ * applications for NDN.
+ *
+ * ChronoSync is free software: you can redistribute it and/or modify it under the terms
+ * of the GNU General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * ChronoSync is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * ChronoSync, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "logic.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 
 namespace chronosync {
 namespace test {
-
-using std::vector;
-
 
 class Handler
 {
@@ -22,9 +38,8 @@ public:
   }
 
   void
-  onUpdate(const vector<MissingDataInfo>& v)
+  onUpdate(const std::vector<MissingDataInfo>& v)
   {
-
   }
 
   void
@@ -45,7 +60,6 @@ public:
     logic.removeUserNode(prefix);
   }
 
-
   Logic logic;
   std::map<Name, SeqNo> map;
 };
@@ -53,7 +67,6 @@ public:
 class MultiUserFixture
 {
 public:
-
   MultiUserFixture()
     : syncPrefix("/ndn/broadcast/sync")
     , scheduler(io)
@@ -93,9 +106,8 @@ BOOST_AUTO_TEST_CASE(ThreeUserNode)
 
   BOOST_CHECK_EQUAL(handler->logic.getSeqNo(), 2);
 
-  BOOST_REQUIRE_THROW(handler->logic.getSeqNo(userPrefix[0]), Logic::Error);
-  BOOST_REQUIRE_THROW(handler->logic.getSessionName(userPrefix[0]), Logic::Error);
-
+  BOOST_CHECK_THROW(handler->logic.getSeqNo(userPrefix[0]), Logic::Error);
+  BOOST_CHECK_THROW(handler->logic.getSessionName(userPrefix[0]), Logic::Error);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

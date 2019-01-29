@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2014 University of California, Los Angeles
+ * Copyright (c) 2012-2019 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -19,7 +19,8 @@
 
 #include "diff-state.hpp"
 #include "diff-state-container.hpp"
-#include "boost-test.hpp"
+
+#include "tests/boost-test.hpp"
 
 namespace chronosync {
 namespace test {

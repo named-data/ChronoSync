@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2018 University of California, Los Angeles
+ * Copyright (c) 2012-2019 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -19,8 +19,8 @@
 
 #include "socket.hpp"
 
-#include "boost-test.hpp"
-#include "../unit-test-time-fixture.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/unit-test-time-fixture.hpp"
 
 #include <ndn-cxx/util/dummy-client-face.hpp>
 
@@ -28,8 +28,6 @@ namespace chronosync {
 namespace test {
 
 using std::string;
-using std::vector;
-using std::map;
 using ndn::util::DummyClientFace;
 
 /**
@@ -99,7 +97,7 @@ public:
   }
 
   void
-  fetchAll(const vector<MissingDataInfo>& v)
+  fetchAll(const std::vector<MissingDataInfo>& v)
   {
     // std::cerr << "fetchAll" << std::endl;
     for (size_t i = 0; i < v.size(); i++) {
@@ -112,7 +110,7 @@ public:
   }
 
   void
-  fetchNumbers(const vector<MissingDataInfo>& v)
+  fetchNumbers(const std::vector<MissingDataInfo>& v)
   {
     // std::cerr << "fetchNumbers" << std::endl;
     for (size_t i = 0; i < v.size(); i++) {
@@ -128,7 +126,7 @@ public:
   toString()
   {
     string str = "\n";
-    for (map<Name, string>::iterator it = data.begin(); it != data.end(); ++it) {
+    for (auto it = data.begin(); it != data.end(); ++it) {
       str += "<";
       str += it->first.toUri();
       str += "|";
@@ -141,7 +139,7 @@ public:
   }
 
 public:
-  map<ndn::Name, string> data;
+  std::map<ndn::Name, string> data;
   uint32_t sum;
   Socket socket;
 };
@@ -247,8 +245,6 @@ public:
   size_t readInterestOffset[3];
   size_t readDataOffset[3];
 };
-
-
 
 BOOST_FIXTURE_TEST_SUITE(SocketTests, SocketFixture)
 
