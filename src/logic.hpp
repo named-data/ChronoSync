@@ -505,10 +505,10 @@ private:
   UpdateCallback m_onUpdate;
 
   // Event
-  ndn::Scheduler m_scheduler;
-  ndn::EventId m_delayedInterestProcessingId;
-  ndn::EventId m_reexpressingInterestId;
-  ndn::EventId m_resetInterestId;
+  ndn::util::scheduler::Scheduler m_scheduler;
+  ndn::util::scheduler::ScopedEventId m_delayedInterestProcessingId;
+  ndn::util::scheduler::ScopedEventId m_reexpressingInterestId;
+  ndn::util::scheduler::ScopedEventId m_resetInterestId;
 
   // Timer
   ndn::random::RandomNumberEngine& m_rng;
