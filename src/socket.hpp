@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2018 University of California, Los Angeles
+ * Copyright (c) 2012-2019 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -237,7 +237,7 @@ public:
   static const std::shared_ptr<Validator> DEFAULT_VALIDATOR;
 
 private:
-  using RegisteredPrefixList = std::unordered_map<ndn::Name, const ndn::RegisteredPrefixId*>;
+  using RegisteredPrefixList = std::unordered_map<ndn::Name, ndn::RegisteredPrefixHandle>;
 
   Name m_userPrefix;
   ndn::Face& m_face;

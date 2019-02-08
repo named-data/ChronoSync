@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2018 University of California, Los Angeles
+ * Copyright (c) 2012-2019 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -61,11 +61,9 @@ Socket::Socket(const Name& syncPrefix,
 
 Socket::~Socket()
 {
-  for(const auto& itr : m_registeredPrefixList) {
-    if (static_cast<bool>(itr.second))
-      m_face.unsetInterestFilter(itr.second);
+  for (auto& itr : m_registeredPrefixList) {
+    itr.second.unregister();
   }
-  m_ims.erase("/");
 }
 
 void
@@ -98,8 +96,7 @@ Socket::removeSyncNode(const Name& prefix)
 
   auto itr = m_registeredPrefixList.find(prefix);
   if (itr != m_registeredPrefixList.end()) {
-    if (static_cast<bool>(itr->second))
-      m_face.unsetInterestFilter(itr->second);
+    itr->second.unregister();
     m_registeredPrefixList.erase(itr);
   }
 

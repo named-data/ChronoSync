@@ -485,7 +485,7 @@ private:
   // Communication
   ndn::Face& m_face;
   Name m_syncPrefix;
-  const ndn::RegisteredPrefixId* m_syncRegisteredPrefixId;
+  ndn::ScopedRegisteredPrefixHandle m_syncRegisteredPrefix;
   Name m_syncReset;
   Name m_defaultUserPrefix;
 
@@ -494,9 +494,10 @@ private:
   State m_state;
   DiffStateContainer m_log;
   InterestTable m_interestTable;
-  Name m_outstandingInterestName;
-  const ndn::PendingInterestId* m_outstandingInterestId;
-  std::vector<const ndn::PendingInterestId*> m_pendingInterests;
+  Name m_pendingSyncInterestName;
+  ndn::ScopedPendingInterestHandle m_pendingSyncInterest;
+  ndn::ScopedPendingInterestHandle m_pendingResetInterest;
+  std::map<std::string, ndn::ScopedPendingInterestHandle> m_pendingRecoveryInterests;
   bool m_isInReset;
   bool m_needPeriodReset;
 

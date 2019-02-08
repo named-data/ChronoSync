@@ -116,7 +116,6 @@ Logic::Logic(ndn::Face& face,
   , m_syncPrefix(syncPrefix)
   , m_defaultUserPrefix(defaultUserPrefix)
   , m_interestTable(m_face.getIoService())
-  , m_outstandingInterestId(0)
   , m_isInReset(false)
   , m_needPeriodReset(resetTimer > time::steady_clock::Duration::zero())
   , m_onUpdate(onUpdate)
@@ -141,10 +140,10 @@ Logic::Logic(ndn::Face& face,
   m_syncReset.append("reset");
 
   _LOG_DEBUG_ID("Listen to: " << m_syncPrefix);
-  m_syncRegisteredPrefixId =
-    m_face.setInterestFilter(ndn::InterestFilter(m_syncPrefix).allowLoopback(false),
-                             bind(&Logic::onSyncInterest, this, _1, _2),
-                             bind(&Logic::onSyncRegisterFailed, this, _1, _2));
+  m_syncRegisteredPrefix = m_face.setInterestFilter(
+    ndn::InterestFilter(m_syncPrefix).allowLoopback(false),
+    bind(&Logic::onSyncInterest, this, _1, _2),
+    bind(&Logic::onSyncRegisterFailed, this, _1, _2));
 
   sendSyncInterest();
   _LOG_DEBUG_ID("<< Logic::Logic");
@@ -153,15 +152,6 @@ Logic::Logic(ndn::Face& face,
 Logic::~Logic()
 {
   _LOG_DEBUG_ID(">> Logic::~Logic");
-  for (const auto& pendingInterestId : m_pendingInterests) {
-    m_face.removePendingInterest(pendingInterestId);
-  }
-  if (m_outstandingInterestId != nullptr) {
-    m_face.removePendingInterest(m_outstandingInterestId);
-    m_outstandingInterestId = nullptr;
-  }
-  m_face.unsetInterestFilter(m_syncRegisteredPrefixId);
-
   m_interestTable.clear();
   m_scheduler.cancelAllEvents();
   _LOG_DEBUG_ID("<< Logic::~Logic");
@@ -177,12 +167,6 @@ Logic::reset(bool isOnInterest)
 
   if (!isOnInterest)
     sendResetInterest();
-
-  // reset outstanding interest name, so that data for previous interest will be dropped.
-  if (m_outstandingInterestId != 0) {
-    m_face.removePendingInterest(m_outstandingInterestId);
-    m_outstandingInterestId = 0;
-  }
 
   sendSyncInterest();
 
@@ -634,15 +618,13 @@ Logic::sendResetInterest()
   interest.setMustBeFresh(true);
   interest.setCanBePrefix(false); // no data is expected
   interest.setInterestLifetime(m_resetInterestLifetime);
-  const ndn::PendingInterestId* pendingInterestId = m_face.expressInterest(interest,
+
+  // Assigning to m_pendingResetInterest cancels the previous reset Interest.
+  // This is harmless since no Data is expected.
+  m_pendingResetInterest = m_face.expressInterest(interest,
     bind(&Logic::onResetData, this, _1, _2),
     bind(&Logic::onSyncTimeout, this, _1), // Nack
     bind(&Logic::onSyncTimeout, this, _1));
-  m_scheduler.scheduleEvent(m_resetInterestLifetime + ndn::time::milliseconds(5),
-                            [pendingInterestId, this] {
-                              cleanupPendingInterest(pendingInterestId);
-                            });
-  m_pendingInterests.push_back(pendingInterestId);
   _LOG_DEBUG_ID("<< Logic::sendResetInterest");
 }
 
@@ -655,7 +637,7 @@ Logic::sendSyncInterest()
   interestName.append(m_syncPrefix)
     .append(ndn::name::Component(*m_state.getRootDigest()));
 
-  m_outstandingInterestName = interestName;
+  m_pendingSyncInterestName = interestName;
 
 #ifdef _DEBUG
   printDigest(m_state.getRootDigest());
@@ -673,14 +655,10 @@ Logic::sendSyncInterest()
   interest.setCanBePrefix(true);
   interest.setInterestLifetime(m_syncInterestLifetime);
 
-  if (m_outstandingInterestId != nullptr) {
-    m_face.removePendingInterest(m_outstandingInterestId);
-    m_outstandingInterestId = nullptr;
-  }
-  m_outstandingInterestId = m_face.expressInterest(interest,
-                                                   bind(&Logic::onSyncData, this, _1, _2),
-                                                   bind(&Logic::onSyncTimeout, this, _1), // Nack
-                                                   bind(&Logic::onSyncTimeout, this, _1));
+  m_pendingSyncInterest = m_face.expressInterest(interest,
+                                                 bind(&Logic::onSyncData, this, _1, _2),
+                                                 bind(&Logic::onSyncTimeout, this, _1), // Nack
+                                                 bind(&Logic::onSyncTimeout, this, _1));
 
   _LOG_DEBUG_ID("Send interest: " << interest.getName());
   _LOG_DEBUG_ID("<< Logic::sendSyncInterest");
@@ -754,12 +732,9 @@ Logic::sendSyncData(const Name& nodePrefix, const Name& name, const State& state
   m_face.put(encodeSyncReply(nodePrefix, name, state));
 
   // checking if our own interest got satisfied
-  if (m_outstandingInterestName == name) {
+  if (m_pendingSyncInterestName == name) {
     // remove outstanding interest
-    if (m_outstandingInterestId != 0) {
-      m_face.removePendingInterest(m_outstandingInterestId);
-      m_outstandingInterestId = 0;
-    }
+    m_pendingSyncInterest.cancel();
 
     // re-schedule sending Sync interest
     time::milliseconds after(m_reexpressionJitter(m_rng));
@@ -808,15 +783,10 @@ Logic::sendRecoveryInterest(ConstBufferPtr digest)
   interest.setCanBePrefix(true);
   interest.setInterestLifetime(m_recoveryInterestLifetime);
 
-  const ndn::PendingInterestId* pendingInterestId = m_face.expressInterest(interest,
+  m_pendingRecoveryInterests[interestName[-1].toUri()] = m_face.expressInterest(interest,
     bind(&Logic::onRecoveryData, this, _1, _2),
     bind(&Logic::onRecoveryTimeout, this, _1), // Nack
     bind(&Logic::onRecoveryTimeout, this, _1));
-  m_scheduler.scheduleEvent(m_recoveryInterestLifetime + ndn::time::milliseconds(5),
-                            [pendingInterestId, this] {
-                              cleanupPendingInterest(pendingInterestId);
-                            });
-  m_pendingInterests.push_back(pendingInterestId);
   _LOG_DEBUG_ID("interest: " << interest.getName());
   _LOG_DEBUG_ID("<< Logic::sendRecoveryInterest");
 }
@@ -845,6 +815,7 @@ void
 Logic::onRecoveryData(const Interest& interest, const Data& data)
 {
   _LOG_DEBUG_ID(">> Logic::onRecoveryData");
+  m_pendingRecoveryInterests.erase(interest.getName()[-1].toUri());
   onSyncDataValidated(data);
   _LOG_DEBUG_ID("<< Logic::onRecoveryData");
 }
@@ -853,17 +824,9 @@ void
 Logic::onRecoveryTimeout(const Interest& interest)
 {
   _LOG_DEBUG_ID(">> Logic::onRecoveryTimeout");
+  m_pendingRecoveryInterests.erase(interest.getName()[-1].toUri());
   _LOG_DEBUG_ID("Interest: " << interest.getName());
   _LOG_DEBUG_ID("<< Logic::onRecoveryTimeout");
-}
-
-void
-Logic::cleanupPendingInterest(const ndn::PendingInterestId* pendingInterestId)
-{
-  auto itr = std::find(m_pendingInterests.begin(), m_pendingInterests.end(), pendingInterestId);
-  if (itr != m_pendingInterests.end()) {
-    m_pendingInterests.erase(itr);
-  }
 }
 
 } // namespace chronosync
