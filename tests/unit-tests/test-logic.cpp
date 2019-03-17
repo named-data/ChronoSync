@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_CASE(RecoverConflict)
   handler[1]->updateSeqNo(2);
   handler[2]->updateSeqNo(4);
 
-  advanceClocks(ndn::time::milliseconds(10), 100);
+  advanceClocks(ndn::time::milliseconds(50), 100);
   BOOST_CHECK_EQUAL(handler[0]->map[handler[1]->logic.getSessionName()], 2);
   BOOST_CHECK_EQUAL(handler[0]->map[handler[2]->logic.getSessionName()], 4);
   BOOST_CHECK_EQUAL(handler[1]->map[handler[2]->logic.getSessionName()], 4);
