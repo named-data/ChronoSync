@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2017 University of California, Los Angeles
+ * Copyright (c) 2012-2019 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -47,7 +47,7 @@ InterestTable::insert(const Interest& interest, ConstBufferPtr digest, bool isKn
   if (entryLifetime < time::milliseconds::zero())
     entryLifetime = ndn::DEFAULT_INTEREST_LIFETIME;
 
-  request->expirationEvent = m_scheduler.scheduleEvent(entryLifetime, [=] { erase(digest); });
+  request->expirationEvent = m_scheduler.schedule(entryLifetime, [=] { erase(digest); });
 
   m_table.insert(request);
 }
@@ -57,7 +57,7 @@ InterestTable::erase(ConstBufferPtr digest)
 {
   auto it = m_table.get<hashed>().find(digest);
   while (it != m_table.get<hashed>().end()) {
-    m_scheduler.cancelEvent((*it)->expirationEvent);
+    (*it)->expirationEvent.cancel();
     m_table.erase(it);
 
     it = m_table.get<hashed>().find(digest);
@@ -83,9 +83,8 @@ void
 InterestTable::clear()
 {
   for (const auto& item : m_table) {
-    m_scheduler.cancelEvent(item->expirationEvent);
+    item->expirationEvent.cancel();
   }
-
   m_table.clear();
 }
 

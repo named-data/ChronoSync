@@ -168,8 +168,7 @@ Logic::reset(bool isOnInterest)
 
   sendSyncInterest();
 
-  m_delayedInterestProcessingId = m_scheduler.scheduleEvent(m_cancelResetTimer,
-                                  bind(&Logic::cancelReset, this));
+  m_delayedInterestProcessingId = m_scheduler.schedule(m_cancelResetTimer, [this] { cancelReset(); });
 }
 
 void
@@ -428,8 +427,8 @@ Logic::processSyncInterest(const Interest& interest, bool isTimedProcessing/*=fa
       // Do not hurry, some others may be also resetting and may send their reply
       time::milliseconds after(m_rangeUniformRandom(m_rng));
       _LOG_DEBUG_ID("After: " << after);
-      m_delayedInterestProcessingId = m_scheduler.scheduleEvent(after,
-                                      bind(&Logic::processSyncInterest, this, interest, true));
+      m_delayedInterestProcessingId = m_scheduler.schedule(after,
+                                                           [=] { processSyncInterest(interest, true); });
     }
     else {
       _LOG_DEBUG_ID("Timed processing in reset");
@@ -461,8 +460,8 @@ Logic::processSyncInterest(const Interest& interest, bool isTimedProcessing/*=fa
     m_interestTable.insert(interest, digest, true);
 
     m_delayedInterestProcessingId =
-      m_scheduler.scheduleEvent(time::milliseconds(m_rangeUniformRandom(m_rng)),
-                                bind(&Logic::processSyncInterest, this, interest, true));
+      m_scheduler.schedule(time::milliseconds(m_rangeUniformRandom(m_rng)),
+                           [=] { processSyncInterest(interest, true); });
   }
   else {
     // OK, nobody is helping us, just tell the truth.
@@ -497,25 +496,24 @@ Logic::processSyncData(const Name& name,
     reply.wireDecode(syncReplyBlock);
 
     std::vector<MissingDataInfo> v;
-    BOOST_FOREACH(ConstLeafPtr leaf, reply.getLeaves().get<ordered>())
-      {
-        BOOST_ASSERT(leaf != 0);
+    BOOST_FOREACH(ConstLeafPtr leaf, reply.getLeaves().get<ordered>()) {
+      BOOST_ASSERT(leaf != nullptr);
 
-        const Name& info = leaf->getSessionName();
-        SeqNo seq = leaf->getSeq();
+      const Name& info = leaf->getSessionName();
+      SeqNo seq = leaf->getSeq();
 
-        bool isInserted = false;
-        bool isUpdated = false;
-        SeqNo oldSeq;
-        std::tie(isInserted, isUpdated, oldSeq) = m_state.update(info, seq);
-        if (isInserted || isUpdated) {
-          commit->update(info, seq);
+      bool isInserted = false;
+      bool isUpdated = false;
+      SeqNo oldSeq;
+      std::tie(isInserted, isUpdated, oldSeq) = m_state.update(info, seq);
+      if (isInserted || isUpdated) {
+        commit->update(info, seq);
 
-          oldSeq++;
-          MissingDataInfo mdi = {info, oldSeq, seq};
-          v.push_back(mdi);
-        }
+        oldSeq++;
+        MissingDataInfo mdi = {info, oldSeq, seq};
+        v.push_back(mdi);
       }
+    }
 
     if (!v.empty()) {
       m_onUpdate(v);
@@ -538,8 +536,7 @@ Logic::processSyncData(const Name& name,
     // state changed and it is safe to express a new interest
     auto after = time::milliseconds(m_reexpressionJitter(m_rng));
     _LOG_DEBUG_ID("Reschedule sync interest after: " << after);
-    m_reexpressingInterestId = m_scheduler.scheduleEvent(after,
-                               bind(&Logic::sendSyncInterest, this));
+    m_reexpressingInterestId = m_scheduler.schedule(after, [this] { sendSyncInterest(); });
   }
 }
 
@@ -589,9 +586,8 @@ Logic::sendResetInterest()
     _LOG_DEBUG_ID("Need Period Reset");
     _LOG_DEBUG_ID("ResetTimer: " << m_resetTimer);
 
-    m_resetInterestId = m_scheduler.scheduleEvent(
-                        m_resetTimer + ndn::time::milliseconds(m_reexpressionJitter(m_rng)),
-                        bind(&Logic::sendResetInterest, this));
+    m_resetInterestId = m_scheduler.schedule(m_resetTimer + ndn::time::milliseconds(m_reexpressionJitter(m_rng)),
+                                             [this] { sendResetInterest(); });
   }
 
   Interest interest(m_syncReset);
@@ -623,9 +619,9 @@ Logic::sendSyncInterest()
   printDigest(m_state.getRootDigest());
 #endif
 
-  m_reexpressingInterestId = m_scheduler.scheduleEvent(m_syncInterestLifetime / 2 +
-                             ndn::time::milliseconds(m_reexpressionJitter(m_rng)),
-                             bind(&Logic::sendSyncInterest, this));
+  m_reexpressingInterestId = m_scheduler.schedule(m_syncInterestLifetime / 2 +
+                                                  ndn::time::milliseconds(m_reexpressionJitter(m_rng)),
+                                                  [this] { sendSyncInterest(); });
 
   Interest interest(interestName);
   interest.setMustBeFresh(true);
@@ -717,7 +713,7 @@ Logic::sendSyncData(const Name& nodePrefix, const Name& name, const State& state
     time::milliseconds after(m_reexpressionJitter(m_rng));
     _LOG_DEBUG_ID("Satisfy our own interest");
     _LOG_DEBUG_ID("Reschedule sync interest after " << after);
-    m_reexpressingInterestId = m_scheduler.scheduleEvent(after, bind(&Logic::sendSyncInterest, this));
+    m_reexpressingInterestId = m_scheduler.schedule(after, [this] { sendSyncInterest(); });
   }
   _LOG_DEBUG_ID("<< Logic::sendSyncData");
 }
