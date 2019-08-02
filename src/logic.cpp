@@ -112,10 +112,11 @@ Logic::Logic(ndn::Face& face,
              const name::Component& session)
   : m_face(face)
   , m_syncPrefix(syncPrefix)
+  , m_syncReset(Name(syncPrefix).append("reset"))
   , m_defaultUserPrefix(defaultUserPrefix)
   , m_interestTable(m_face.getIoService())
   , m_isInReset(false)
-  , m_needPeriodReset(resetTimer > time::steady_clock::Duration::zero())
+  , m_needPeriodReset(resetTimer > time::nanoseconds::zero())
   , m_onUpdate(onUpdate)
   , m_scheduler(m_face.getIoService())
   , m_rng(ndn::random::getRandomNumberEngine())
@@ -131,11 +132,7 @@ Logic::Logic(ndn::Face& face,
   , m_instanceId(s_instanceCounter++)
 {
   _LOG_DEBUG_ID(">> Logic::Logic");
-
-  addUserNode(m_defaultUserPrefix, defaultSigningId, session);
-
-  m_syncReset = m_syncPrefix;
-  m_syncReset.append("reset");
+  addUserNode(m_defaultUserPrefix, defaultSigningId, session, false);
 
   _LOG_DEBUG_ID("Listen to: " << m_syncPrefix);
   m_syncRegisteredPrefix = m_face.setInterestFilter(
@@ -182,7 +179,7 @@ Logic::setDefaultUserPrefix(const Name& defaultUserPrefix)
 }
 
 void
-Logic::addUserNode(const Name& userPrefix, const Name& signingId, const name::Component& session)
+Logic::addUserNode(const Name& userPrefix, const Name& signingId, const name::Component& session, bool shouldSendReset)
 {
   if (userPrefix == EMPTY_NAME)
     return;
@@ -197,11 +194,11 @@ Logic::addUserNode(const Name& userPrefix, const Name& signingId, const name::Co
       sessionName.append(session);
     }
     else {
-      sessionName.appendNumber(ndn::time::toUnixTimestamp(ndn::time::system_clock::now()).count());
+      sessionName.appendNumber(time::toUnixTimestamp(time::system_clock::now()).count());
     }
     m_nodeList[userPrefix].sessionName = sessionName;
     m_nodeList[userPrefix].seqNo = 0;
-    reset(false);
+    reset(!shouldSendReset);
   }
 }
 
@@ -586,7 +583,7 @@ Logic::sendResetInterest()
     _LOG_DEBUG_ID("Need Period Reset");
     _LOG_DEBUG_ID("ResetTimer: " << m_resetTimer);
 
-    m_resetInterestId = m_scheduler.schedule(m_resetTimer + ndn::time::milliseconds(m_reexpressionJitter(m_rng)),
+    m_resetInterestId = m_scheduler.schedule(m_resetTimer + time::milliseconds(m_reexpressionJitter(m_rng)),
                                              [this] { sendResetInterest(); });
   }
 
@@ -620,7 +617,7 @@ Logic::sendSyncInterest()
 #endif
 
   m_reexpressingInterestId = m_scheduler.schedule(m_syncInterestLifetime / 2 +
-                                                  ndn::time::milliseconds(m_reexpressionJitter(m_rng)),
+                                                  time::milliseconds(m_reexpressionJitter(m_rng)),
                                                   [this] { sendSyncInterest(); });
 
   Interest interest(interestName);

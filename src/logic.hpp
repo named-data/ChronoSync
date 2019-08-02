@@ -169,10 +169,11 @@ public:
    * @param userPrefix prefix of the added node
    * @param signingId signing Id of the added node
    * @param session manually defined session ID
+   * @param shouldSendReset enable/disable sending the reset interest
    */
   void
   addUserNode(const Name& userPrefix, const Name& signingId = DEFAULT_NAME,
-              const name::Component& session = name::Component());
+              const name::Component& session = name::Component(), bool shouldSendReset = true);
 
   /// @brief remove the node from the local session
   void
