@@ -369,6 +369,18 @@ Logic::onResetData(const Interest& interest, const Data& data)
 }
 
 void
+Logic::onSyncNack(const Interest& interest, const ndn::lp::Nack& nack)
+{
+  _LOG_DEBUG_ID(">> Logic::onSyncNack");
+  if (nack.getReason() == ndn::lp::NackReason::NO_ROUTE) {
+    auto after = ndn::time::milliseconds(m_reexpressionJitter(m_rng));
+    _LOG_DEBUG_ID("Schedule sync interest after: " << after);
+    m_scheduler.schedule(after, [this] { sendSyncInterest(); });
+  }
+  _LOG_DEBUG_ID("<< Logic::onSyncNack");
+}
+
+void
 Logic::onSyncTimeout(const Interest& interest)
 {
   // It is OK. Others will handle the time out situation.
@@ -627,7 +639,7 @@ Logic::sendSyncInterest()
 
   m_pendingSyncInterest = m_face.expressInterest(interest,
                                                  bind(&Logic::onSyncData, this, _1, _2),
-                                                 bind(&Logic::onSyncTimeout, this, _1), // Nack
+                                                 bind(&Logic::onSyncNack, this, _1, _2),
                                                  bind(&Logic::onSyncTimeout, this, _1));
 
   _LOG_DEBUG_ID("Send interest: " << interest.getName());

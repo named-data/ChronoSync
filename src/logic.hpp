@@ -292,6 +292,18 @@ private:
   onResetData(const Interest& interest, const Data& data);
 
   /**
+   * @brief Callback to handle Sync Interest Nack
+   *
+   * This method checks whether the Nack is of type NoRoute
+   * and schedules a sync interest in m_reexpressionJitter
+   *
+   * @param interest The sync interest for which the Nack happened
+   * @param nack The incoming Nack
+   */
+  void
+  onSyncNack(const Interest& interest, const ndn::lp::Nack& nack);
+
+  /**
    * @brief Callback to handle Sync Interest timeout.
    *
    * This method does nothing, since Logic per se handles timeout explicitly.
