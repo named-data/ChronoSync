@@ -1,11 +1,11 @@
 # -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 
+from waflib import Context, Logs, Utils
+import os, subprocess
+
 VERSION = '0.5.2'
 APPNAME = 'ChronoSync'
 GIT_TAG_PREFIX = ''
-
-from waflib import Logs, Utils, Context
-import os, subprocess
 
 def options(opt):
     opt.load(['compiler_c', 'compiler_cxx', 'gnu_dirs'])
@@ -13,38 +13,42 @@ def options(opt):
               'coverage', 'sanitizers'],
              tooldir=['.waf-tools'])
 
-    opt.add_option('--with-tests', action='store_true', default=False,
-                   help='Build unit tests')
+    optgrp = opt.add_option_group('ChronoSync Options')
+    optgrp.add_option('--with-tests', action='store_true', default=False,
+                      help='Build unit tests')
 
 def configure(conf):
     conf.load(['compiler_c', 'compiler_cxx', 'gnu_dirs',
-               'default-compiler-flags', 'boost', 'coverage',
+               'default-compiler-flags', 'boost',
                'doxygen', 'sphinx_build'])
 
-    if 'PKG_CONFIG_PATH' not in os.environ:
-        os.environ['PKG_CONFIG_PATH'] = Utils.subst_vars('${LIBDIR}/pkgconfig', conf.env)
-    conf.check_cfg(package='libndn-cxx', args=['--cflags', '--libs'],
-                   uselib_store='NDN_CXX', mandatory=True)
+    conf.env.WITH_TESTS = conf.options.with_tests
 
-    boost_libs = 'system iostreams thread log log_setup'
-    if conf.options.with_tests:
-        conf.env['CHRONOSYNC_HAVE_TESTS'] = True
-        conf.define('CHRONOSYNC_HAVE_TESTS', 1)
-        boost_libs += ' unit_test_framework'
+    conf.check_cfg(package='libndn-cxx', args=['--cflags', '--libs'], uselib_store='NDN_CXX',
+                   pkg_config_path=os.environ.get('PKG_CONFIG_PATH', '%s/pkgconfig' % conf.env.LIBDIR))
+
+    boost_libs = ['system', 'iostreams']
+    if conf.env.WITH_TESTS:
+        boost_libs.append('unit_test_framework')
+
     conf.check_boost(lib=boost_libs, mt=True)
 
     conf.check_compiler_flags()
 
     # Loading "late" to prevent tests from being compiled with profiling flags
     conf.load('coverage')
-
     conf.load('sanitizers')
 
     # If there happens to be a static library, waf will put the corresponding -L flags
     # before dynamic library flags.  This can result in compilation failure when the
     # system has a different version of the ChronoSync library installed.
-    conf.env['STLIBPATH'] = ['.'] + conf.env['STLIBPATH']
+    conf.env.prepend_value('STLIBPATH', ['.'])
 
+    conf.define_cond('CHRONOSYNC_HAVE_TESTS', conf.env.WITH_TESTS)
+    # The config header will contain all defines that were added using conf.define()
+    # or conf.define_cond().  Everything that was added directly to conf.env.DEFINES
+    # will not appear in the config header, but will instead be passed directly to the
+    # compiler on the command line.
     conf.write_config_header('config.hpp')
 
 def build(bld):
@@ -56,28 +60,26 @@ def build(bld):
               includes='src .',
               export_includes='src .')
 
-    if bld.env['CHRONOSYNC_HAVE_TESTS']:
+    if bld.env.WITH_TESTS:
         bld.recurse('tests')
 
     bld.install_files(
-        dest = '%s/ChronoSync' % bld.env['INCLUDEDIR'],
+        dest = '%s/ChronoSync' % bld.env.INCLUDEDIR,
         files = bld.path.ant_glob(['src/*.hpp', 'common.hpp']),
         cwd = bld.path.find_dir('src'),
         relative_trick = False)
 
     bld.install_files(
-        dest = '%s/ChronoSync' % bld.env['INCLUDEDIR'],
+        dest = '%s/ChronoSync' % bld.env.INCLUDEDIR,
         files = bld.path.get_bld().ant_glob(['src/*.hpp', 'common.hpp', 'config.hpp']),
         cwd = bld.path.get_bld().find_dir('src'),
         relative_trick = False)
 
-    bld(features = 'subst',
+    bld(features='subst',
         source='ChronoSync.pc.in',
         target='ChronoSync.pc',
-        install_path = '${LIBDIR}/pkgconfig',
-        PREFIX       = bld.env['PREFIX'],
-        INCLUDEDIR   = "%s/ChronoSync" % bld.env['INCLUDEDIR'],
-        VERSION      = VERSION)
+        install_path='${LIBDIR}/pkgconfig',
+        VERSION=VERSION)
 
 def docs(bld):
     from waflib import Options
@@ -115,7 +117,8 @@ def sphinx(bld):
         config='docs/conf.py',
         outdir='docs',
         source=bld.path.ant_glob('docs/**/*.rst'),
-        VERSION=VERSION)
+        version=VERSION_BASE,
+        release=VERSION)
 
 def version(ctx):
     # don't execute more than once
