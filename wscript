@@ -3,7 +3,7 @@
 from waflib import Context, Logs, Utils
 import os, subprocess
 
-VERSION = '0.5.2'
+VERSION = '0.5.3'
 APPNAME = 'ChronoSync'
 GIT_TAG_PREFIX = ''
 
