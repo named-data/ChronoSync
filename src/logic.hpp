@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2019 University of California, Los Angeles
+ * Copyright (c) 2012-2020 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -365,24 +365,21 @@ private:
    * This method extracts state update information from Sync Reply and applies
    * it to the Sync Tree and re-express Sync Interest.
    *
-   * @param name           The data name of the Sync Reply.
-   * @param digest         The digest in the data name.
-   * @param syncReplyBlock The content of the Sync Reply.
+   * @param name      The data name of the Sync Reply.
+   * @param digest    The digest in the data name.
+   * @param syncReply The content of the Sync Reply.
    */
   void
-  processSyncData(const Name& name,
-                  ConstBufferPtr digest,
-                  const Block& syncReplyBlock);
+  processSyncData(const Name& name, ConstBufferPtr digest, const Block& syncReply);
 
   /**
    * @brief Insert state diff into log
    *
-   * @param diff         The diff .
+   * @param diff         The diff.
    * @param previousRoot The root digest before state changes.
    */
   void
-  insertToDiffLog(DiffStatePtr diff,
-                  ConstBufferPtr previousRoot);
+  insertToDiffLog(DiffStatePtr diff, ConstBufferPtr previousRoot);
 
   /**
    * @brief Reply to all pending Sync Interests with a particular commit (or diff)
@@ -456,32 +453,6 @@ private:
    */
   void
   onRecoveryTimeout(const Interest& interest);
-
-  // /**
-  //  * @brief Helper method to send Exclude Interest
-  //  *
-  //  * @param interest    The interest whose exclude filter will be augmented
-  //  * @param data        The data whose implicit digest will be inserted into exclude filter
-  //  */
-  // void
-  // sendExcludeInterest(const Interest& interest, const Data& data);
-
-  // /**
-  //  * @brief Helper method to form the exclude Interest and calls sendExcludeInterest
-  //  *
-  //  * @param interest       The interest whose exclude filter will be augmented
-  //  * @param nodePrefix     The prefix of the sender node
-  //  * @param commit         The commit whose contents will be used to obtain the implicit
-  //                          digest to be excluded
-  //  * @param previousRoot   The digest to be included in the interest
-  //  */
-  // void
-  // formAndSendExcludeInterest(const Name& nodePrefix,
-  //                            const State& commit,
-  //                            ConstBufferPtr previousRoot);
-
-  void
-  cleanupPendingInterest(const ndn::PendingInterestId* pendingInterestId);
 
 public:
   static const ndn::Name DEFAULT_NAME;

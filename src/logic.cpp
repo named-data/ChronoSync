@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2019 University of California, Los Angeles
+ * Copyright (c) 2012-2020 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -290,7 +290,6 @@ Logic::updateSeqNo(const SeqNo& seqNo, const Name& updatePrefix)
         insertToDiffLog(commit, previousRoot);
 
         satisfyPendingSyncInterests(prefix, commit);
-        // formAndSendExcludeInterest(prefix, *commit, previousRoot);
       }
     }
   }
@@ -455,7 +454,7 @@ Logic::processSyncInterest(const Interest& interest, bool isTimedProcessing/*=fa
     return;
   }
 
-  DiffStateContainer::iterator stateIter = m_log.find(digest);
+  auto stateIter = m_log.find(digest);
   // If the digest of incoming interest can be found from the log
   if (stateIter != m_log.end()) {
     _LOG_DEBUG_ID("It is ok, you are so close");
@@ -490,9 +489,7 @@ Logic::processResetInterest(const Interest& interest)
 }
 
 void
-Logic::processSyncData(const Name& name,
-                       ConstBufferPtr digest,
-                       const Block& syncReplyBlock)
+Logic::processSyncData(const Name& name, ConstBufferPtr digest, const Block& syncReply)
 {
   _LOG_DEBUG_ID(">> Logic::processSyncData");
   DiffStatePtr commit = make_shared<DiffState>();
@@ -502,7 +499,7 @@ Logic::processSyncData(const Name& name,
     m_interestTable.erase(digest); // Remove satisfied interest from PIT
 
     State reply;
-    reply.wireDecode(syncReplyBlock);
+    reply.wireDecode(syncReply);
 
     std::vector<MissingDataInfo> v;
     BOOST_FOREACH(ConstLeafPtr leaf, reply.getLeaves().get<ordered>()) {
@@ -778,16 +775,15 @@ Logic::processRecoveryInterest(const Interest& interest)
 
   Name name = interest.getName();
   ConstBufferPtr digest = make_shared<ndn::Buffer>(name.get(-1).value(), name.get(-1).value_size());
-
   ConstBufferPtr rootDigest = m_state.getRootDigest();
 
-  DiffStateContainer::iterator stateIter = m_log.find(digest);
-
+  auto stateIter = m_log.find(digest);
   if (stateIter != m_log.end() || *digest == *EMPTY_DIGEST || *rootDigest == *digest) {
     _LOG_DEBUG_ID("I can help you recover");
     sendSyncData(m_defaultUserPrefix, name, m_state);
     return;
   }
+
   _LOG_DEBUG_ID("<< Logic::processRecoveryInterest");
 }
 
