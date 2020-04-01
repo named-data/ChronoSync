@@ -1,10 +1,8 @@
-ChronoSync: synchronization library for distributed realtime applications for NDN
-=================================================================================
+# ChronoSync: synchronization library for distributed realtime applications for NDN
 
+![Language](https://img.shields.io/badge/C%2B%2B-14-blue.svg)
 [![Build Status](https://travis-ci.org/named-data/ChronoSync.svg?branch=master)](https://travis-ci.org/named-data/ChronoSync)
-
-If you are new to the NDN community of software generally, read the
-[Contributor's Guide](https://github.com/named-data/NFD/blob/master/CONTRIBUTING.md).
+![Latest Version](https://img.shields.io/github/tag/named-data/ChronoSync.svg?color=darkkhaki&label=latest%20version)
 
 In supporting many distributed applications, such as group text messaging, file sharing,
 and joint editing, a basic requirement is the efficient and robust synchronization of
@@ -19,28 +17,13 @@ be inferred from the digests and disseminated efficiently to all parties.  With 
 complete and up-to-date knowledge of the dataset changes, applications can decide whether
 or when to fetch which pieces of the data.
 
-ChronoSync uses [ndn-cxx](https://github.com/named-data/ndn-cxx) library as NDN development
-library.
+ChronoSync uses the [ndn-cxx](https://github.com/named-data/ndn-cxx) library.
 
-ChronoSync is an open source project licensed under GPL 3.0 (see `COPYING.md` for more
-detail).  We highly welcome all contributions to the ChronoSync code base, provided that
-they can licensed under GPL 3.0+ or other compatible license.
-
-Feedback
---------
-
-Please submit any bugs or issues to the **ChronoSync** issue tracker:
-
-* https://redmine.named-data.net/projects/chronosync
-
-Installation instructions
--------------------------
+## Installation
 
 ### Prerequisites
 
-Required:
-
-* [ndn-cxx and its dependencies](https://named-data.net/doc/ndn-cxx/)
+* [ndn-cxx and its dependencies](https://named-data.net/doc/ndn-cxx/current/INSTALL.html)
 
 ### Build
 
@@ -53,5 +36,23 @@ To build ChronoSync from the source:
 To build on memory constrained platform, please use `./waf -j1` instead of `./waf`. The
 command will disable parallel compilation.
 
-If configured with tests: `./waf configure --with-tests`), the above commands will also
-generate unit tests in `./build/unit-tests`
+If configured with tests (`./waf configure --with-tests`), the above commands will also
+generate unit tests that can be run with `./build/unit-tests`.
+
+## Reporting bugs
+
+Please submit any bug reports or feature requests to the
+[ChronoSync issue tracker](https://redmine.named-data.net/projects/chronosync/issues).
+
+## Contributing
+
+We greatly appreciate contributions to the ChronoSync code base, provided that they are
+licensed under the GPL 3.0+ or a compatible license (see below).
+If you are new to the NDN software community, please read the
+[Contributor's Guide](https://github.com/named-data/.github/blob/master/CONTRIBUTING.md)
+to get started.
+
+## License
+
+ChronoSync is an open source project licensed under the GPL version 3.
+See [`COPYING.md`](COPYING.md) for more information.
