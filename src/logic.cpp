@@ -649,18 +649,18 @@ Logic::trimState(State& partialState, const State& state, size_t nExcludedStates
   partialState.reset();
 
   std::vector<ConstLeafPtr> leaves;
-  for (const ConstLeafPtr& leaf : state.getLeaves()) {
+  for (const auto& leaf : state.getLeaves()) {
     leaves.push_back(leaf);
   }
 
   std::shuffle(leaves.begin(), leaves.end(), m_rng);
 
   size_t statesToEncode = leaves.size() - std::min(leaves.size() - 1, nExcludedStates);
-  for (const auto& constLeafPtr : leaves) {
+  for (const auto& leaf : leaves) {
     if (statesToEncode == 0) {
       break;
     }
-    partialState.update(constLeafPtr->getSessionName(), constLeafPtr->getSeq());
+    partialState.update(leaf->getSessionName(), leaf->getSeq());
     --statesToEncode;
   }
 }
