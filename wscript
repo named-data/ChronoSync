@@ -143,7 +143,7 @@ def version(ctx):
     except (OSError, subprocess.CalledProcessError):
         pass
 
-    versionFile = ctx.path.find_node('VERSION')
+    versionFile = ctx.path.find_node('VERSION.info')
     if not gotVersionFromGit and versionFile is not None:
         try:
             Context.g_module.VERSION = versionFile.read()
@@ -160,7 +160,7 @@ def version(ctx):
         except EnvironmentError as e:
             Logs.warn('%s exists but is not readable (%s)' % (versionFile, e.strerror))
     else:
-        versionFile = ctx.path.make_node('VERSION')
+        versionFile = ctx.path.make_node('VERSION.info')
 
     try:
         versionFile.write(Context.g_module.VERSION)
