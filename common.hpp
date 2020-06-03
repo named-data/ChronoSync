@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2018 University of California, Los Angeles
+ * Copyright (c) 2012-2020 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -49,7 +49,7 @@
 #include <ndn-cxx/interest.hpp>
 #include <ndn-cxx/security/key-chain.hpp>
 #include <ndn-cxx/security/signing-helpers.hpp>
-#include <ndn-cxx/security/v2/validator.hpp>
+#include <ndn-cxx/security/validator.hpp>
 #include <ndn-cxx/security/validator-config.hpp>
 #include <ndn-cxx/util/scheduler.hpp>
 #include <ndn-cxx/util/time.hpp>
@@ -80,8 +80,8 @@ using ndn::ConstBufferPtr;
 using ndn::Data;
 using ndn::Interest;
 using ndn::Name;
-using ndn::security::v2::ValidationError;
-using ndn::security::v2::Validator;
+using ndn::security::ValidationError;
+using ndn::security::Validator;
 
 namespace tlv {
 using namespace ndn::tlv;
