@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2017 University of California, Los Angeles
+ * Copyright (c) 2012-2020 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -23,6 +23,8 @@
  */
 
 #include "state.hpp"
+
+#include <boost/range/adaptor/reversed.hpp>
 
 namespace chronosync {
 
@@ -52,8 +54,7 @@ State::update(const Name& info, const SeqNo& seq)
     }
 
     SeqNo old = (*leaf)->getSeq();
-    m_leaves.modify(leaf,
-                    [=] (LeafPtr& leaf) { leaf->setSeq(seq); } );
+    m_leaves.modify(leaf, [=] (LeafPtr& leaf) { leaf->setSeq(seq); } );
     return make_tuple(false, true, old);
   }
 }
@@ -63,15 +64,13 @@ State::getRootDigest() const
 {
   m_digest.reset();
 
-  BOOST_FOREACH (ConstLeafPtr leaf, m_leaves.get<ordered>())
-    {
-      BOOST_ASSERT(leaf != 0);
-      m_digest.update(leaf->getDigest()->data(), leaf->getDigest()->size());
-    }
+  for (const auto& leaf : m_leaves.get<ordered>()) {
+    BOOST_ASSERT(leaf != nullptr);
+    m_digest.update(leaf->getDigest()->data(), leaf->getDigest()->size());
+  }
 
   return m_digest.computeDigest();
 }
-
 
 void
 State::reset()
@@ -82,12 +81,10 @@ State::reset()
 State&
 State::operator+=(const State& state)
 {
-  BOOST_FOREACH (ConstLeafPtr leaf, state.getLeaves())
-    {
-      BOOST_ASSERT(leaf != 0);
-      update(leaf->getSessionName(), leaf->getSeq());
-    }
-
+  for (const auto& leaf : state.getLeaves()) {
+    BOOST_ASSERT(leaf != nullptr);
+    update(leaf->getSessionName(), leaf->getSeq());
+  }
   return *this;
 }
 
@@ -97,15 +94,14 @@ State::wireEncode(encoding::EncodingImpl<T>& block) const
 {
   size_t totalLength = 0;
 
-  BOOST_REVERSE_FOREACH (ConstLeafPtr leaf, m_leaves.get<ordered>())
-    {
-      size_t entryLength = 0;
-      entryLength += prependNonNegativeIntegerBlock(block, tlv::SeqNo, leaf->getSeq());
-      entryLength += leaf->getSessionName().wireEncode(block);
-      entryLength += block.prependVarNumber(entryLength);
-      entryLength += block.prependVarNumber(tlv::StateLeaf);
-      totalLength += entryLength;
-    }
+  for (const auto& leaf : m_leaves.get<ordered>() | boost::adaptors::reversed) {
+    size_t entryLength = 0;
+    entryLength += prependNonNegativeIntegerBlock(block, tlv::SeqNo, leaf->getSeq());
+    entryLength += leaf->getSessionName().wireEncode(block);
+    entryLength += block.prependVarNumber(entryLength);
+    entryLength += block.prependVarNumber(tlv::StateLeaf);
+    totalLength += entryLength;
+  }
 
   totalLength += block.prependVarNumber(totalLength);
   totalLength += block.prependVarNumber(tlv::SyncReply);
@@ -144,12 +140,11 @@ State::wireDecode(const Block& wire)
   wire.parse();
   m_wire = wire;
 
-  for (Block::element_const_iterator it = wire.elements_begin();
-       it != wire.elements_end(); it++) {
+  for (auto it = wire.elements_begin(); it != wire.elements_end(); it++) {
     if (it->type() == tlv::StateLeaf) {
       it->parse();
 
-      Block::element_const_iterator val = it->elements_begin();
+      auto val = it->elements_begin();
       Name info(*val);
       val++;
 

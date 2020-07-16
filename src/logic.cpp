@@ -482,14 +482,14 @@ Logic::processSyncInterest(const Interest& interest, bool isTimedProcessing/*=fa
 }
 
 void
-Logic::processResetInterest(const Interest& interest)
+Logic::processResetInterest(const Interest&)
 {
   _LOG_DEBUG_ID(">> Logic::processResetInterest");
   reset(true);
 }
 
 void
-Logic::processSyncData(const Name& name, ConstBufferPtr digest, const Block& syncReply)
+Logic::processSyncData(const Name&, ConstBufferPtr digest, const Block& syncReply)
 {
   _LOG_DEBUG_ID(">> Logic::processSyncData");
   DiffStatePtr commit = make_shared<DiffState>();
@@ -502,7 +502,7 @@ Logic::processSyncData(const Name& name, ConstBufferPtr digest, const Block& syn
     reply.wireDecode(syncReply);
 
     std::vector<MissingDataInfo> v;
-    BOOST_FOREACH(ConstLeafPtr leaf, reply.getLeaves().get<ordered>()) {
+    for (const auto& leaf : reply.getLeaves().get<ordered>()) {
       BOOST_ASSERT(leaf != nullptr);
 
       const Name& info = leaf->getSessionName();
@@ -514,10 +514,8 @@ Logic::processSyncData(const Name& name, ConstBufferPtr digest, const Block& syn
       std::tie(isInserted, isUpdated, oldSeq) = m_state.update(info, seq);
       if (isInserted || isUpdated) {
         commit->update(info, seq);
-
         oldSeq++;
-        MissingDataInfo mdi = {info, oldSeq, seq};
-        v.push_back(mdi);
+        v.push_back({info, oldSeq, seq});
       }
     }
 

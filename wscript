@@ -8,9 +8,10 @@ APPNAME = 'ChronoSync'
 GIT_TAG_PREFIX = ''
 
 def options(opt):
-    opt.load(['compiler_c', 'compiler_cxx', 'gnu_dirs'])
-    opt.load(['default-compiler-flags', 'boost', 'doxygen', 'sphinx_build',
-              'coverage', 'sanitizers'],
+    opt.load(['compiler_cxx', 'gnu_dirs'])
+    opt.load(['default-compiler-flags',
+              'coverage', 'sanitizers', 'boost',
+              'doxygen', 'sphinx_build'],
              tooldir=['.waf-tools'])
 
     optgrp = opt.add_option_group('ChronoSync Options')
@@ -18,7 +19,7 @@ def options(opt):
                       help='Build unit tests')
 
 def configure(conf):
-    conf.load(['compiler_c', 'compiler_cxx', 'gnu_dirs',
+    conf.load(['compiler_cxx', 'gnu_dirs',
                'default-compiler-flags', 'boost',
                'doxygen', 'sphinx_build'])
 

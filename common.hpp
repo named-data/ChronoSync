@@ -57,9 +57,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
 #include <boost/assert.hpp>
-#include <boost/foreach.hpp>
+#include <boost/core/noncopyable.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/noncopyable.hpp>
 
 namespace chronosync {
 
