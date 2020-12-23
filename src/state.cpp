@@ -25,18 +25,12 @@
 #include "state.hpp"
 
 #include <boost/range/adaptor/reversed.hpp>
+#include <ndn-cxx/util/exception.hpp>
 
 namespace chronosync {
 
 State::~State() = default;
 
-/**
- * @brief Add or update leaf to the sync tree
- *
- * @param info session name of the leaf
- * @param seq  sequence number of the leaf
- * @return 3-tuple (isInserted, isUpdated, oldSeqNo)
- */
 std::tuple<bool, bool, SeqNo>
 State::update(const Name& info, const SeqNo& seq)
 {
@@ -131,11 +125,10 @@ void
 State::wireDecode(const Block& wire)
 {
   if (!wire.hasWire())
-    BOOST_THROW_EXCEPTION(Error("The supplied block does not contain wire format"));
+    NDN_THROW(Error("The supplied block does not contain wire format"));
 
   if (wire.type() != tlv::SyncReply)
-    BOOST_THROW_EXCEPTION(Error("Unexpected TLV type when decoding SyncReply: " +
-                                boost::lexical_cast<std::string>(m_wire.type())));
+    NDN_THROW(Error("Unexpected TLV type when decoding SyncReply: " + ndn::to_string(wire.type())));
 
   wire.parse();
   m_wire = wire;
@@ -151,7 +144,7 @@ State::wireDecode(const Block& wire)
       if (val != it->elements_end())
         update(info, readNonNegativeInteger(*val));
       else
-        BOOST_THROW_EXCEPTION(Error("No seqNo when decoding SyncReply"));
+        NDN_THROW(Error("No SeqNo when decoding SyncReply"));
     }
   }
 }

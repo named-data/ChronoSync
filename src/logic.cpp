@@ -28,6 +28,7 @@
 #include "bzip2-helper.hpp"
 
 #include <ndn-cxx/util/backports.hpp>
+#include <ndn-cxx/util/exception.hpp>
 #include <ndn-cxx/util/string-helper.hpp>
 
 INIT_LOGGER(Logic);
@@ -225,11 +226,12 @@ Logic::getSessionName(Name prefix)
 {
   if (prefix == EMPTY_NAME)
     prefix = m_defaultUserPrefix;
+
   auto node = m_nodeList.find(prefix);
   if (node != m_nodeList.end())
     return node->second.sessionName;
-  else
-    BOOST_THROW_EXCEPTION(Error("Refer to non-existent node:" + prefix.toUri()));
+
+  NDN_THROW(Error("Nonexistent node: " + prefix.toUri()));
 }
 
 const SeqNo&
@@ -237,12 +239,12 @@ Logic::getSeqNo(Name prefix)
 {
   if (prefix == EMPTY_NAME)
     prefix = m_defaultUserPrefix;
+
   auto node = m_nodeList.find(prefix);
   if (node != m_nodeList.end())
     return node->second.seqNo;
-  else
-    BOOST_THROW_EXCEPTION(Logic::Error("Refer to non-existent node:" + prefix.toUri()));
 
+  NDN_THROW(Error("Nonexistent node: " + prefix.toUri()));
 }
 
 void

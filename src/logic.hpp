@@ -31,13 +31,6 @@
 
 #include <ndn-cxx/util/random.hpp>
 
-#include <boost/archive/iterators/dataflow_exception.hpp>
-#include <boost/archive/iterators/transform_width.hpp>
-#include <boost/assert.hpp>
-#include <boost/iterator/transform_iterator.hpp>
-#include <boost/throw_exception.hpp>
-
-#include <memory>
 #include <unordered_map>
 
 namespace chronosync {
