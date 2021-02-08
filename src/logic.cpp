@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2020 University of California, Los Angeles
+ * Copyright (c) 2012-2021 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -24,16 +24,16 @@
  */
 
 #include "logic.hpp"
-#include "logger.hpp"
-#include "bzip2-helper.hpp"
+#include "detail/bzip2-helper.hpp"
 
 #include <ndn-cxx/util/backports.hpp>
 #include <ndn-cxx/util/exception.hpp>
+#include <ndn-cxx/util/logger.hpp>
 #include <ndn-cxx/util/string-helper.hpp>
 
-INIT_LOGGER(Logic);
+NDN_LOG_INIT(sync.Logic);
 
-#define _LOG_DEBUG_ID(v) _LOG_DEBUG("Instance" << m_instanceId << ": " << v)
+#define CHRONO_LOG_DBG(v) NDN_LOG_DEBUG("Instance" << m_instanceId << ": " << v)
 
 namespace chronosync {
 
@@ -69,18 +69,18 @@ const size_t NDNLP_EXPECTED_OVERHEAD = 20;
  * The returned value can be customized using the environment variable `CHRONOSYNC_MAX_PACKET_SIZE`,
  * but the returned value will be at least 500 and no more than `ndn::MAX_NDN_PACKET_SIZE`.
  */
-#ifndef CHRONOSYNC_HAVE_TESTS
+#ifndef CHRONOSYNC_WITH_TESTS
 static
-#endif // CHRONOSYNC_HAVE_TESTS
+#endif // CHRONOSYNC_WITH_TESTS
 size_t
 getMaxPacketLimit()
 {
   static size_t limit = 0;
-#ifndef CHRONOSYNC_HAVE_TESTS
+#ifndef CHRONOSYNC_WITH_TESTS
   if (limit != 0) {
     return limit;
   }
-#endif // CHRONOSYNC_HAVE_TESTS
+#endif // CHRONOSYNC_WITH_TESTS
 
   if (getenv("CHRONOSYNC_MAX_PACKET_SIZE") != nullptr) {
     try {
@@ -132,25 +132,25 @@ Logic::Logic(ndn::Face& face,
   , m_validator(validator)
   , m_instanceId(s_instanceCounter++)
 {
-  _LOG_DEBUG_ID(">> Logic::Logic");
+  CHRONO_LOG_DBG(">> Logic::Logic");
   addUserNode(m_defaultUserPrefix, defaultSigningId, session, false);
 
-  _LOG_DEBUG_ID("Listen to: " << m_syncPrefix);
+  CHRONO_LOG_DBG("Listen to: " << m_syncPrefix);
   m_syncRegisteredPrefix = m_face.setInterestFilter(
     ndn::InterestFilter(m_syncPrefix).allowLoopback(false),
     bind(&Logic::onSyncInterest, this, _1, _2),
     bind(&Logic::onSyncRegisterFailed, this, _1, _2));
 
   sendSyncInterest();
-  _LOG_DEBUG_ID("<< Logic::Logic");
+  CHRONO_LOG_DBG("<< Logic::Logic");
 }
 
 Logic::~Logic()
 {
-  _LOG_DEBUG_ID(">> Logic::~Logic");
+  CHRONO_LOG_DBG(">> Logic::~Logic");
   m_interestTable.clear();
   m_scheduler.cancelAllEvents();
-  _LOG_DEBUG_ID("<< Logic::~Logic");
+  CHRONO_LOG_DBG("<< Logic::~Logic");
 }
 
 void
@@ -262,20 +262,20 @@ Logic::updateSeqNo(const SeqNo& seqNo, const Name& updatePrefix)
   auto it = m_nodeList.find(prefix);
   if (it != m_nodeList.end()) {
     NodeInfo& node = it->second;
-    _LOG_DEBUG_ID(">> Logic::updateSeqNo");
-    _LOG_DEBUG_ID("seqNo: " << seqNo << " m_seqNo: " << node.seqNo);
+    CHRONO_LOG_DBG(">> Logic::updateSeqNo");
+    CHRONO_LOG_DBG("seqNo: " << seqNo << " m_seqNo: " << node.seqNo);
     if (seqNo < node.seqNo || seqNo == 0)
       return;
 
     node.seqNo = seqNo;
-    _LOG_DEBUG_ID("updateSeqNo: m_seqNo " << node.seqNo);
+    CHRONO_LOG_DBG("updateSeqNo: m_seqNo " << node.seqNo);
 
     if (!m_isInReset) {
-      _LOG_DEBUG_ID("updateSeqNo: not in Reset ");
+      CHRONO_LOG_DBG("updateSeqNo: not in Reset");
       ConstBufferPtr previousRoot = m_state.getRootDigest();
       {
         std::string hash = ndn::toHex(previousRoot->data(), previousRoot->size(), false);
-        _LOG_DEBUG_ID("Hash: " << hash);
+        CHRONO_LOG_DBG("Hash: " << hash);
       }
 
       bool isInserted = false;
@@ -283,8 +283,8 @@ Logic::updateSeqNo(const SeqNo& seqNo, const Name& updatePrefix)
       SeqNo oldSeq;
       std::tie(isInserted, isUpdated, oldSeq) = m_state.update(node.sessionName, node.seqNo);
 
-      _LOG_DEBUG_ID("Insert: " << std::boolalpha << isInserted);
-      _LOG_DEBUG_ID("Updated: " << std::boolalpha << isUpdated);
+      CHRONO_LOG_DBG("Insert: " << std::boolalpha << isInserted);
+      CHRONO_LOG_DBG("Updated: " << std::boolalpha << isUpdated);
       if (isInserted || isUpdated) {
         DiffStatePtr commit = make_shared<DiffState>();
         commit->update(node.sessionName, node.seqNo);
@@ -322,12 +322,12 @@ Logic::getSessionNames() const
 }
 
 void
-Logic::onSyncInterest(const Name& prefix, const Interest& interest)
+Logic::onSyncInterest(const Name&, const Interest& interest)
 {
-  _LOG_DEBUG_ID(">> Logic::onSyncInterest");
+  CHRONO_LOG_DBG(">> Logic::onSyncInterest");
   Name name = interest.getName();
 
-  _LOG_DEBUG_ID("InterestName: " << name);
+  CHRONO_LOG_DBG("InterestName: " << name);
 
   if (name.size() >= 1 && RESET_COMPONENT == name.get(-1)) {
     processResetInterest(interest);
@@ -339,20 +339,19 @@ Logic::onSyncInterest(const Name& prefix, const Interest& interest)
     processSyncInterest(interest);
   }
 
-  _LOG_DEBUG_ID("<< Logic::onSyncInterest");
+  CHRONO_LOG_DBG("<< Logic::onSyncInterest");
 }
 
 void
 Logic::onSyncRegisterFailed(const Name& prefix, const std::string& msg)
 {
-  //Sync prefix registration failed
-  _LOG_DEBUG_ID(">> Logic::onSyncRegisterFailed");
+  CHRONO_LOG_DBG(">> Logic::onSyncRegisterFailed");
 }
 
 void
-Logic::onSyncData(const Interest& interest, const Data& data)
+Logic::onSyncData(const Interest&, const Data& data)
 {
-  _LOG_DEBUG_ID(">> Logic::onSyncData");
+  CHRONO_LOG_DBG(">> Logic::onSyncData");
   if (m_validator != nullptr)
     m_validator->validate(data,
                           bind(&Logic::onSyncDataValidated, this, _1),
@@ -360,38 +359,38 @@ Logic::onSyncData(const Interest& interest, const Data& data)
   else
      onSyncDataValidated(data);
 
-  _LOG_DEBUG_ID("<< Logic::onSyncData");
+  CHRONO_LOG_DBG("<< Logic::onSyncData");
 }
 
 void
-Logic::onResetData(const Interest& interest, const Data& data)
+Logic::onResetData(const Interest&, const Data&)
 {
   // This should not happened, drop the received data.
 }
 
 void
-Logic::onSyncNack(const Interest& interest, const ndn::lp::Nack& nack)
+Logic::onSyncNack(const Interest&, const ndn::lp::Nack& nack)
 {
-  _LOG_DEBUG_ID(">> Logic::onSyncNack");
+  CHRONO_LOG_DBG(">> Logic::onSyncNack");
   if (nack.getReason() == ndn::lp::NackReason::NO_ROUTE) {
     auto after = ndn::time::milliseconds(m_reexpressionJitter(m_rng));
-    _LOG_DEBUG_ID("Schedule sync interest after: " << after);
+    CHRONO_LOG_DBG("Schedule sync interest after: " << after);
     m_scheduler.schedule(after, [this] { sendSyncInterest(); });
   }
-  _LOG_DEBUG_ID("<< Logic::onSyncNack");
+  CHRONO_LOG_DBG("<< Logic::onSyncNack");
 }
 
 void
 Logic::onSyncTimeout(const Interest& interest)
 {
   // It is OK. Others will handle the time out situation.
-  _LOG_DEBUG_ID(">> Logic::onSyncTimeout");
-  _LOG_DEBUG_ID("Interest: " << interest.getName());
-  _LOG_DEBUG_ID("<< Logic::onSyncTimeout");
+  CHRONO_LOG_DBG(">> Logic::onSyncTimeout");
+  CHRONO_LOG_DBG("Interest: " << interest.getName());
+  CHRONO_LOG_DBG("<< Logic::onSyncTimeout");
 }
 
 void
-Logic::onSyncDataValidationFailed(const Data& data)
+Logic::onSyncDataValidationFailed(const Data&)
 {
   // SyncReply cannot be validated.
 }
@@ -408,14 +407,14 @@ Logic::onSyncDataValidated(const Data& data)
     processSyncData(name, digest, Block(std::move(contentBuffer)));
   }
   catch (const std::ios_base::failure& error) {
-    _LOG_WARN("Error decompressing content of " << data.getName() << " (" << error.what() << ")");
+    NDN_LOG_WARN("Error decompressing content of " << data.getName() << " (" << error.what() << ")");
   }
 }
 
 void
 Logic::processSyncInterest(const Interest& interest, bool isTimedProcessing/*=false*/)
 {
-  _LOG_DEBUG_ID(">> Logic::processSyncInterest");
+  CHRONO_LOG_DBG(">> Logic::processSyncInterest");
 
   Name name = interest.getName();
   ConstBufferPtr digest = make_shared<ndn::Buffer>(name.get(-1).value(), name.get(-1).value_size());
@@ -425,23 +424,23 @@ Logic::processSyncInterest(const Interest& interest, bool isTimedProcessing/*=fa
   // If the digest of the incoming interest is the same as root digest
   // Put the interest into InterestTable
   if (*rootDigest == *digest) {
-    _LOG_DEBUG_ID("Oh, we are in the same state");
+    CHRONO_LOG_DBG("Oh, we are in the same state");
     m_interestTable.insert(interest, digest, false);
 
     if (!m_isInReset)
       return;
 
     if (!isTimedProcessing) {
-      _LOG_DEBUG_ID("Non timed processing in reset");
+      CHRONO_LOG_DBG("Non timed processing in reset");
       // Still in reset, our own seq has not been put into state yet
       // Do not hurry, some others may be also resetting and may send their reply
       time::milliseconds after(m_rangeUniformRandom(m_rng));
-      _LOG_DEBUG_ID("After: " << after);
+      CHRONO_LOG_DBG("After: " << after);
       m_delayedInterestProcessingId = m_scheduler.schedule(after,
                                                            [=] { processSyncInterest(interest, true); });
     }
     else {
-      _LOG_DEBUG_ID("Timed processing in reset");
+      CHRONO_LOG_DBG("Timed processing in reset");
       // Now we can get out of reset state by putting our own stuff into m_state.
       cancelReset();
     }
@@ -451,7 +450,7 @@ Logic::processSyncInterest(const Interest& interest, bool isTimedProcessing/*=fa
 
   // If the digest of incoming interest is an "empty" digest
   if (*digest == *EMPTY_DIGEST) {
-    _LOG_DEBUG_ID("Poor guy, he knows nothing");
+    CHRONO_LOG_DBG("Poor guy, he knows nothing");
     sendSyncData(m_defaultUserPrefix, name, m_state);
     return;
   }
@@ -459,13 +458,13 @@ Logic::processSyncInterest(const Interest& interest, bool isTimedProcessing/*=fa
   auto stateIter = m_log.find(digest);
   // If the digest of incoming interest can be found from the log
   if (stateIter != m_log.end()) {
-    _LOG_DEBUG_ID("It is ok, you are so close");
+    CHRONO_LOG_DBG("It is ok, you are so close");
     sendSyncData(m_defaultUserPrefix, name, *(*stateIter)->diff());
     return;
   }
 
   if (!isTimedProcessing) {
-    _LOG_DEBUG_ID("Let's wait, just wait for a while");
+    CHRONO_LOG_DBG("Let's wait, just wait for a while");
     // Do not hurry, some incoming SyncReplies may help us to recognize the digest
     m_interestTable.insert(interest, digest, true);
 
@@ -475,25 +474,25 @@ Logic::processSyncInterest(const Interest& interest, bool isTimedProcessing/*=fa
   }
   else {
     // OK, nobody is helping us, just tell the truth.
-    _LOG_DEBUG_ID("OK, nobody is helping us, let us try to recover");
+    CHRONO_LOG_DBG("OK, nobody is helping us, let us try to recover");
     m_interestTable.erase(digest);
     sendRecoveryInterest(digest);
   }
 
-  _LOG_DEBUG_ID("<< Logic::processSyncInterest");
+  CHRONO_LOG_DBG("<< Logic::processSyncInterest");
 }
 
 void
 Logic::processResetInterest(const Interest&)
 {
-  _LOG_DEBUG_ID(">> Logic::processResetInterest");
+  CHRONO_LOG_DBG(">> Logic::processResetInterest");
   reset(true);
 }
 
 void
 Logic::processSyncData(const Name&, ConstBufferPtr digest, const Block& syncReply)
 {
-  _LOG_DEBUG_ID(">> Logic::processSyncData");
+  CHRONO_LOG_DBG(">> Logic::processSyncData");
   DiffStatePtr commit = make_shared<DiffState>();
   ConstBufferPtr previousRoot = m_state.getRootDigest();
 
@@ -528,12 +527,11 @@ Logic::processSyncData(const Name&, ConstBufferPtr digest, const Block& syncRepl
       insertToDiffLog(commit, previousRoot);
     }
     else {
-      _LOG_DEBUG_ID("What? nothing new");
+      CHRONO_LOG_DBG("What? nothing new");
     }
   }
   catch (const State::Error&) {
-    _LOG_DEBUG_ID("Something really fishy happened during state decoding");
-    // Something really fishy happened during state decoding;
+    CHRONO_LOG_DBG("Something really fishy happened during state decoding");
     commit.reset();
     return;
   }
@@ -541,7 +539,7 @@ Logic::processSyncData(const Name&, ConstBufferPtr digest, const Block& syncRepl
   if (static_cast<bool>(commit) && !commit->getLeaves().empty()) {
     // state changed and it is safe to express a new interest
     auto after = time::milliseconds(m_reexpressionJitter(m_rng));
-    _LOG_DEBUG_ID("Reschedule sync interest after: " << after);
+    CHRONO_LOG_DBG("Reschedule sync interest after: " << after);
     m_reexpressingInterestId = m_scheduler.schedule(after, [this] { sendSyncInterest(); });
   }
 }
@@ -549,9 +547,9 @@ Logic::processSyncData(const Name&, ConstBufferPtr digest, const Block& syncRepl
 void
 Logic::satisfyPendingSyncInterests(const Name& updatedPrefix, ConstDiffStatePtr commit)
 {
-  _LOG_DEBUG_ID(">> Logic::satisfyPendingSyncInterests");
+  CHRONO_LOG_DBG(">> Logic::satisfyPendingSyncInterests");
   try {
-    _LOG_DEBUG_ID("InterestTable size: " << m_interestTable.size());
+    CHRONO_LOG_DBG("InterestTable size: " << m_interestTable.size());
     auto it = m_interestTable.begin();
     while (it != m_interestTable.end()) {
       ConstUnsatisfiedInterestPtr request = *it;
@@ -566,13 +564,13 @@ Logic::satisfyPendingSyncInterests(const Name& updatedPrefix, ConstDiffStatePtr 
   catch (const InterestTable::Error&) {
     // ok. not really an error
   }
-  _LOG_DEBUG_ID("<< Logic::satisfyPendingSyncInterests");
+  CHRONO_LOG_DBG("<< Logic::satisfyPendingSyncInterests");
 }
 
 void
 Logic::insertToDiffLog(DiffStatePtr commit, ConstBufferPtr previousRoot)
 {
-  _LOG_DEBUG_ID(">> Logic::insertToDiffLog");
+  CHRONO_LOG_DBG(">> Logic::insertToDiffLog");
   // Connect to the history
   if (!m_log.empty())
     (*m_log.find(previousRoot))->setNext(commit);
@@ -580,17 +578,17 @@ Logic::insertToDiffLog(DiffStatePtr commit, ConstBufferPtr previousRoot)
   // Insert the commit
   m_log.erase(commit->getRootDigest());
   m_log.insert(commit);
-  _LOG_DEBUG_ID("<< Logic::insertToDiffLog");
+  CHRONO_LOG_DBG("<< Logic::insertToDiffLog");
 }
 
 void
 Logic::sendResetInterest()
 {
-  _LOG_DEBUG_ID(">> Logic::sendResetInterest");
+  CHRONO_LOG_DBG(">> Logic::sendResetInterest");
 
   if (m_needPeriodReset) {
-    _LOG_DEBUG_ID("Need Period Reset");
-    _LOG_DEBUG_ID("ResetTimer: " << m_resetTimer);
+    CHRONO_LOG_DBG("Need Period Reset");
+    CHRONO_LOG_DBG("ResetTimer: " << m_resetTimer);
 
     m_resetInterestId = m_scheduler.schedule(m_resetTimer + time::milliseconds(m_reexpressionJitter(m_rng)),
                                              [this] { sendResetInterest(); });
@@ -607,13 +605,13 @@ Logic::sendResetInterest()
     bind(&Logic::onResetData, this, _1, _2),
     bind(&Logic::onSyncTimeout, this, _1), // Nack
     bind(&Logic::onSyncTimeout, this, _1));
-  _LOG_DEBUG_ID("<< Logic::sendResetInterest");
+  CHRONO_LOG_DBG("<< Logic::sendResetInterest");
 }
 
 void
 Logic::sendSyncInterest()
 {
-  _LOG_DEBUG_ID(">> Logic::sendSyncInterest");
+  CHRONO_LOG_DBG(">> Logic::sendSyncInterest");
 
   Name interestName;
   interestName.append(m_syncPrefix)
@@ -639,8 +637,8 @@ Logic::sendSyncInterest()
                                                  bind(&Logic::onSyncNack, this, _1, _2),
                                                  bind(&Logic::onSyncTimeout, this, _1));
 
-  _LOG_DEBUG_ID("Send interest: " << interest.getName());
-  _LOG_DEBUG_ID("<< Logic::sendSyncInterest");
+  CHRONO_LOG_DBG("Send interest: " << interest.getName());
+  CHRONO_LOG_DBG("<< Logic::sendSyncInterest");
 }
 
 void
@@ -688,7 +686,8 @@ Logic::encodeSyncReply(const Name& nodePrefix, const Name& name, const State& st
   while (syncReply.wireEncode().size() > getMaxPacketLimit() - NDNLP_EXPECTED_OVERHEAD) {
     if (nExcludedStates == 1) {
       // To show this debug message only once
-      _LOG_DEBUG("Sync reply size exceeded maximum packet limit (" << (getMaxPacketLimit() - NDNLP_EXPECTED_OVERHEAD) << ")");
+      NDN_LOG_DEBUG("Sync reply size exceeded maximum packet limit ("
+                    << (getMaxPacketLimit() - NDNLP_EXPECTED_OVERHEAD) << ")");
     }
     State partialState;
     trimState(partialState, state, nExcludedStates);
@@ -704,7 +703,7 @@ Logic::encodeSyncReply(const Name& nodePrefix, const Name& name, const State& st
 void
 Logic::sendSyncData(const Name& nodePrefix, const Name& name, const State& state)
 {
-  _LOG_DEBUG_ID(">> Logic::sendSyncData");
+  CHRONO_LOG_DBG(">> Logic::sendSyncData");
   if (m_nodeList.find(nodePrefix) == m_nodeList.end())
     return;
 
@@ -717,17 +716,17 @@ Logic::sendSyncData(const Name& nodePrefix, const Name& name, const State& state
 
     // re-schedule sending Sync interest
     time::milliseconds after(m_reexpressionJitter(m_rng));
-    _LOG_DEBUG_ID("Satisfy our own interest");
-    _LOG_DEBUG_ID("Reschedule sync interest after " << after);
+    CHRONO_LOG_DBG("Satisfy our own interest");
+    CHRONO_LOG_DBG("Reschedule sync interest after " << after);
     m_reexpressingInterestId = m_scheduler.schedule(after, [this] { sendSyncInterest(); });
   }
-  _LOG_DEBUG_ID("<< Logic::sendSyncData");
+  CHRONO_LOG_DBG("<< Logic::sendSyncData");
 }
 
 void
 Logic::cancelReset()
 {
-  _LOG_DEBUG_ID(">> Logic::cancelReset");
+  CHRONO_LOG_DBG(">> Logic::cancelReset");
   if (!m_isInReset)
     return;
 
@@ -735,20 +734,20 @@ Logic::cancelReset()
   for (const auto& node : m_nodeList) {
     updateSeqNo(node.second.seqNo, node.first);
   }
-  _LOG_DEBUG_ID("<< Logic::cancelReset");
+  CHRONO_LOG_DBG("<< Logic::cancelReset");
 }
 
 void
 Logic::printDigest(ConstBufferPtr digest)
 {
   std::string hash = ndn::toHex(digest->data(), digest->size(), false);
-  _LOG_DEBUG_ID("Hash: " << hash);
+  CHRONO_LOG_DBG("Hash: " << hash);
 }
 
 void
 Logic::sendRecoveryInterest(ConstBufferPtr digest)
 {
-  _LOG_DEBUG_ID(">> Logic::sendRecoveryInterest");
+  CHRONO_LOG_DBG(">> Logic::sendRecoveryInterest");
 
   Name interestName;
   interestName.append(m_syncPrefix)
@@ -764,14 +763,14 @@ Logic::sendRecoveryInterest(ConstBufferPtr digest)
     bind(&Logic::onRecoveryData, this, _1, _2),
     bind(&Logic::onRecoveryTimeout, this, _1), // Nack
     bind(&Logic::onRecoveryTimeout, this, _1));
-  _LOG_DEBUG_ID("interest: " << interest.getName());
-  _LOG_DEBUG_ID("<< Logic::sendRecoveryInterest");
+  CHRONO_LOG_DBG("interest: " << interest.getName());
+  CHRONO_LOG_DBG("<< Logic::sendRecoveryInterest");
 }
 
 void
 Logic::processRecoveryInterest(const Interest& interest)
 {
-  _LOG_DEBUG_ID(">> Logic::processRecoveryInterest");
+  CHRONO_LOG_DBG(">> Logic::processRecoveryInterest");
 
   Name name = interest.getName();
   ConstBufferPtr digest = make_shared<ndn::Buffer>(name.get(-1).value(), name.get(-1).value_size());
@@ -779,30 +778,30 @@ Logic::processRecoveryInterest(const Interest& interest)
 
   auto stateIter = m_log.find(digest);
   if (stateIter != m_log.end() || *digest == *EMPTY_DIGEST || *rootDigest == *digest) {
-    _LOG_DEBUG_ID("I can help you recover");
+    CHRONO_LOG_DBG("I can help you recover");
     sendSyncData(m_defaultUserPrefix, name, m_state);
     return;
   }
 
-  _LOG_DEBUG_ID("<< Logic::processRecoveryInterest");
+  CHRONO_LOG_DBG("<< Logic::processRecoveryInterest");
 }
 
 void
 Logic::onRecoveryData(const Interest& interest, const Data& data)
 {
-  _LOG_DEBUG_ID(">> Logic::onRecoveryData");
+  CHRONO_LOG_DBG(">> Logic::onRecoveryData");
   m_pendingRecoveryInterests.erase(interest.getName()[-1].toUri());
   onSyncDataValidated(data);
-  _LOG_DEBUG_ID("<< Logic::onRecoveryData");
+  CHRONO_LOG_DBG("<< Logic::onRecoveryData");
 }
 
 void
 Logic::onRecoveryTimeout(const Interest& interest)
 {
-  _LOG_DEBUG_ID(">> Logic::onRecoveryTimeout");
+  CHRONO_LOG_DBG(">> Logic::onRecoveryTimeout");
   m_pendingRecoveryInterests.erase(interest.getName()[-1].toUri());
-  _LOG_DEBUG_ID("Interest: " << interest.getName());
-  _LOG_DEBUG_ID("<< Logic::onRecoveryTimeout");
+  CHRONO_LOG_DBG("Interest: " << interest.getName());
+  CHRONO_LOG_DBG("<< Logic::onRecoveryTimeout");
 }
 
 } // namespace chronosync

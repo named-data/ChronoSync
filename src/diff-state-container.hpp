@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2017 University of California, Los Angeles
+ * Copyright (c) 2012-2021 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -25,15 +25,14 @@
 #ifndef CHRONOSYNC_DIFF_STATE_CONTAINER_HPP
 #define CHRONOSYNC_DIFF_STATE_CONTAINER_HPP
 
-#include "mi-tag.hpp"
+#include "detail/mi-tag.hpp"
 #include "diff-state.hpp"
 
 #include <boost/multi_index_container.hpp>
-#include <boost/multi_index/tag.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/sequenced_index.hpp>
-#include <boost/multi_index/member.hpp>
 #include <boost/multi_index/mem_fun.hpp>
+#include <boost/multi_index/tag.hpp>
 
 namespace chronosync {
 
@@ -72,9 +71,8 @@ struct DiffStateContainer : public mi::multi_index_container<
       DigestPtrHash,
       DigestPtrEqual
       >,
-
     // sequenced index to access older/newer element (like in list)
-    mi::sequenced<mi::tag<sequenced> >
+    mi::sequenced<mi::tag<sequenced>>
     >
   >
 {

@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2020 University of California, Los Angeles
+ * Copyright (c) 2012-2021 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -81,14 +81,9 @@ public:
   class Error : public std::runtime_error
   {
   public:
-    explicit
-    Error(const std::string& what)
-      : std::runtime_error(what)
-    {
-    }
+    using std::runtime_error::runtime_error;
   };
 
-public:
   static const time::steady_clock::Duration DEFAULT_RESET_TIMER;
   static const time::steady_clock::Duration DEFAULT_CANCEL_RESET_TIMER;
   static const time::milliseconds DEFAULT_RESET_INTEREST_LIFETIME;
@@ -512,10 +507,10 @@ private:
   static int s_instanceCounter;
 };
 
-#ifdef CHRONOSYNC_HAVE_TESTS
+#ifdef CHRONOSYNC_WITH_TESTS
 size_t
 getMaxPacketLimit();
-#endif // CHRONOSYNC_HAVE_TESTS
+#endif // CHRONOSYNC_WITH_TESTS
 
 } // namespace chronosync
 

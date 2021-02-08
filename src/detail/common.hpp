@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2020 University of California, Los Angeles
+ * Copyright (c) 2012-2021 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -20,12 +20,12 @@
  * @author Yingdi Yu <yingdi@cs.ucla.edu>
  */
 
-#ifndef CHRONOSYNC_COMMON_HPP
-#define CHRONOSYNC_COMMON_HPP
+#ifndef CHRONOSYNC_DETAIL_COMMON_HPP
+#define CHRONOSYNC_DETAIL_COMMON_HPP
 
-#include "config.hpp"
+#include "detail/config.hpp"
 
-#ifdef CHRONOSYNC_HAVE_TESTS
+#ifdef CHRONOSYNC_WITH_TESTS
 #define CHRONOSYNC_VIRTUAL_WITH_TESTS virtual
 #define CHRONOSYNC_PUBLIC_WITH_TESTS_ELSE_PROTECTED public
 #define CHRONOSYNC_PUBLIC_WITH_TESTS_ELSE_PRIVATE public
@@ -93,4 +93,4 @@ namespace encoding = ndn::encoding;
 
 } // namespace chronosync
 
-#endif // CHRONOSYNC_COMMON_HPP
+#endif // CHRONOSYNC_DETAIL_COMMON_HPP

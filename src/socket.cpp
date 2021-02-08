@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2019 University of California, Los Angeles
+ * Copyright (c) 2012-2021 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -23,9 +23,10 @@
  */
 
 #include "socket.hpp"
-#include "logger.hpp"
 
-INIT_LOGGER(Socket);
+#include <ndn-cxx/util/logger.hpp>
+
+NDN_LOG_INIT(sync.Socket);
 
 namespace chronosync {
 
@@ -55,7 +56,7 @@ Socket::Socket(const Name& syncPrefix,
     m_registeredPrefixList[m_userPrefix] =
       m_face.setInterestFilter(m_userPrefix,
                                bind(&Socket::onInterest, this, _1, _2),
-                               [] (const Name& prefix, const std::string& msg) {});
+                               [] (const Name&, const std::string&) {});
   NDN_LOG_DEBUG("<< Socket::Socket");
 }
 
@@ -84,7 +85,8 @@ Socket::addSyncNode(const Name& prefix, const Name& signingId, const name::Compo
   m_registeredPrefixList[prefix] =
     m_face.setInterestFilter(prefix,
                              bind(&Socket::onInterest, this, _1, _2),
-                             [] (const Name& prefix, const std::string& msg) {});
+                             [] (const Name&, const std::string&) {});
+
   NDN_LOG_DEBUG("<< addSyncNode");
 }
 
@@ -194,7 +196,7 @@ Socket::fetchData(const Name& sessionName, const SeqNo& seqNo,
                   const ndn::TimeoutCallback& onTimeout,
                   int nRetries)
 {
-  _LOG_DEBUG(">> Socket::fetchData");
+  NDN_LOG_DEBUG(">> Socket::fetchData");
   Name interestName;
   interestName.append(sessionName).appendNumber(seqNo);
 
@@ -207,24 +209,24 @@ Socket::fetchData(const Name& sessionName, const SeqNo& seqNo,
                          bind(onTimeout, _1), // Nack
                          onTimeout);
 
-  _LOG_DEBUG("<< Socket::fetchData");
+  NDN_LOG_DEBUG("<< Socket::fetchData");
 }
 
 void
-Socket::onInterest(const Name& prefix, const Interest& interest)
+Socket::onInterest(const Name&, const Interest& interest)
 {
-  shared_ptr<const Data> data = m_ims.find(interest);
+  auto data = m_ims.find(interest);
   if (data != nullptr) {
     m_face.put(*data);
   }
 }
 
 void
-Socket::onData(const Interest& interest, const Data& data,
+Socket::onData(const Interest&, const Data& data,
                const DataValidatedCallback& onValidated,
                const DataValidationErrorCallback& onFailed)
 {
-  _LOG_DEBUG("Socket::onData");
+  NDN_LOG_DEBUG("Socket::onData");
 
   if (static_cast<bool>(m_validator))
     m_validator->validate(data, onValidated, onFailed);
@@ -237,7 +239,8 @@ Socket::onDataTimeout(const Interest& interest, int nRetries,
                       const DataValidatedCallback& onValidated,
                       const DataValidationErrorCallback& onFailed)
 {
-  _LOG_DEBUG("Socket::onDataTimeout");
+  NDN_LOG_DEBUG("Socket::onDataTimeout");
+
   if (nRetries <= 0)
     return;
 

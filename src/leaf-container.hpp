@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2017 University of California, Los Angeles
+ * Copyright (c) 2012-2021 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -25,13 +25,14 @@
 #ifndef CHRONOSYNC_LEAF_CONTAINER_HPP
 #define CHRONOSYNC_LEAF_CONTAINER_HPP
 
-#include "mi-tag.hpp"
+#include "detail/mi-tag.hpp"
 #include "leaf.hpp"
 
 #include <boost/multi_index_container.hpp>
-#include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/mem_fun.hpp>
+#include <boost/multi_index/tag.hpp>
 
 #include <ndn-cxx/util/sha256.hpp>
 

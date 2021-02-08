@@ -45,12 +45,12 @@ def configure(conf):
     # system has a different version of the ChronoSync library installed.
     conf.env.prepend_value('STLIBPATH', ['.'])
 
-    conf.define_cond('CHRONOSYNC_HAVE_TESTS', conf.env.WITH_TESTS)
+    conf.define_cond('WITH_TESTS', conf.env.WITH_TESTS)
     # The config header will contain all defines that were added using conf.define()
     # or conf.define_cond().  Everything that was added directly to conf.env.DEFINES
     # will not appear in the config header, but will instead be passed directly to the
     # compiler on the command line.
-    conf.write_config_header('config.hpp')
+    conf.write_config_header('src/detail/config.hpp', define_prefix='CHRONOSYNC_')
 
 def build(bld):
     bld.shlib(target='ChronoSync',
@@ -64,17 +64,16 @@ def build(bld):
     if bld.env.WITH_TESTS:
         bld.recurse('tests')
 
-    bld.install_files(
-        dest = '%s/ChronoSync' % bld.env.INCLUDEDIR,
-        files = bld.path.ant_glob(['src/*.hpp', 'common.hpp']),
-        cwd = bld.path.find_dir('src'),
-        relative_trick = False)
+    srcdir = bld.path.find_dir('src')
+    bld.install_files('${INCLUDEDIR}/ChronoSync',
+                      srcdir.ant_glob('**/*.hpp'),
+                      cwd=srcdir,
+                      relative_trick=True)
 
-    bld.install_files(
-        dest = '%s/ChronoSync' % bld.env.INCLUDEDIR,
-        files = bld.path.get_bld().ant_glob(['src/*.hpp', 'common.hpp', 'config.hpp']),
-        cwd = bld.path.get_bld().find_dir('src'),
-        relative_trick = False)
+    bld.install_files('${INCLUDEDIR}/ChronoSync',
+                      'src/detail/config.hpp',
+                      cwd=bld.path.get_bld().find_dir('src'),
+                      relative_trick=True)
 
     bld(features='subst',
         source='ChronoSync.pc.in',

@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2018 University of California, Los Angeles
+ * Copyright (c) 2012-2021 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -15,29 +15,31 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * ChronoSync, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Zhenkai Zhu <http://irl.cs.ucla.edu/~zhenkai/>
+ * @author Chaoyi Bian <bcy@pku.edu.cn>
+ * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
+ * @author Yingdi Yu <yingdi@cs.ucla.edu>
  */
 
-#ifndef CHRONOSYNC_BZIP2_HELPER_HPP
-#define CHRONOSYNC_BZIP2_HELPER_HPP
-
-#include <ndn-cxx/encoding/buffer.hpp>
+#ifndef CHRONOSYNC_DETAIL_MI_TAG_HPP
+#define CHRONOSYNC_DETAIL_MI_TAG_HPP
 
 namespace chronosync {
-namespace bzip2 {
 
-/**
- * @brief Compress @p buffer of size @p bufferSize with bzip2
- */
-std::shared_ptr<ndn::Buffer>
-compress(const char* buffer, size_t bufferSize);
+// Multi-Index-Container Tags
+struct hashed
+{
+};
 
-/**
- * @brief Decompress buffer @p buffer of size @p bufferSize with bzip2
- */
-std::shared_ptr<ndn::Buffer>
-decompress(const char* buffer, size_t bufferSize);
+struct ordered
+{
+};
 
-} // namespace bzip2
+struct sequenced
+{
+};
+
 } // namespace chronosync
 
-#endif // CHRONOSYNC_BZIP2_HELPER_HPP
+#endif // CHRONOSYNC_DETAIL_MI_TAG_HPP

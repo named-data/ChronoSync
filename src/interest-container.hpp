@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2019 University of California, Los Angeles
+ * Copyright (c) 2012-2021 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -25,15 +25,12 @@
 #ifndef CHRONOSYNC_INTEREST_CONTAINER_HPP
 #define CHRONOSYNC_INTEREST_CONTAINER_HPP
 
-#include "common.hpp"
-#include "mi-tag.hpp"
 #include "diff-state-container.hpp"
 
 #include <boost/multi_index_container.hpp>
-#include <boost/multi_index/tag.hpp>
 #include <boost/multi_index/hashed_index.hpp>
-#include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/member.hpp>
+#include <boost/multi_index/tag.hpp>
 
 namespace chronosync {
 
