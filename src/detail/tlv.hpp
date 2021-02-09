@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2014 University of California, Los Angeles
+ * Copyright (c) 2012-2021 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -16,10 +16,26 @@
  * You should have received a copy of the GNU General Public License along with
  * ChronoSync, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
  *
- * @author Zhenkai Zhu <http://irl.cs.ucla.edu/~zhenkai/>
- * @author Chaoyi Bian <bcy@pku.edu.cn>
- * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  * @author Yingdi Yu <yingdi@cs.ucla.edu>
  */
 
-#include "diff-state-container.hpp"
+#ifndef CHRONOSYNC_DETAIL_TLV_HPP
+#define CHRONOSYNC_DETAIL_TLV_HPP
+
+namespace chronosync {
+namespace tlv {
+
+/**
+ * @brief Type value of sync reply related TLVs
+ * @sa docs/design.rst
+ */
+enum {
+  SyncReply   = 128, // 0x80
+  StateLeaf   = 129, // 0x81
+  SeqNo       = 130, // 0x82
+};
+
+} // namespace tlv
+} // namespace chronosync
+
+#endif // CHRONOSYNC_DETAIL_TLV_HPP

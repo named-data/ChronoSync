@@ -58,8 +58,8 @@ def build(bld):
               cnum=VERSION,
               source=bld.path.ant_glob('src/**/*.cpp'),
               use='NDN_CXX BOOST',
-              includes='src .',
-              export_includes='src .')
+              includes='src/detail',
+              export_includes='src src/detail')
 
     if bld.env.WITH_TESTS:
         bld.recurse('tests')

@@ -17,12 +17,13 @@
  * ChronoSync, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "detail/bzip2-helper.hpp"
+#include "bzip2-helper.hpp"
 
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/detail/iostream.hpp>
-#include <boost/iostreams/filter/bzip2.hpp>
 #include <boost/iostreams/copy.hpp>
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filter/bzip2.hpp>
+#include <boost/iostreams/stream.hpp>
 
 #include <ndn-cxx/encoding/buffer-stream.hpp>
 
@@ -38,7 +39,7 @@ compress(const char* buffer, size_t bufferSize)
   bio::filtering_stream<bio::output> out;
   out.push(bio::bzip2_compressor());
   out.push(os);
-  bio::stream<bio::array_source> in(reinterpret_cast<const char*>(buffer), bufferSize);
+  bio::stream<bio::array_source> in(buffer, bufferSize);
   bio::copy(in, out);
   return os.buf();
 }
@@ -50,7 +51,7 @@ decompress(const char* buffer, size_t bufferSize)
   bio::filtering_stream<bio::output> out;
   out.push(bio::bzip2_decompressor());
   out.push(os);
-  bio::stream<bio::array_source> in(reinterpret_cast<const char*>(buffer), bufferSize);
+  bio::stream<bio::array_source> in(buffer, bufferSize);
   bio::copy(in, out);
   return os.buf();
 }

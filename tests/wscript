@@ -7,4 +7,5 @@ def build(bld):
                 name='unit-tests',
                 source=bld.path.ant_glob('**/*.cpp'),
                 use='ChronoSync',
+                includes='..',
                 install_path=None)

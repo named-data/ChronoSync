@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2017 University of California, Los Angeles
+ * Copyright (c) 2012-2021 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -27,6 +27,8 @@
 
 #include "interest-container.hpp"
 
+#include <boost/asio/io_service.hpp>
+
 namespace chronosync {
 
 /**
@@ -38,11 +40,7 @@ public:
   class Error : public std::runtime_error
   {
   public:
-    explicit
-    Error(const std::string& what)
-      : std::runtime_error(what)
-    {
-    }
+    using std::runtime_error::runtime_error;
   };
 
   using iterator = InterestContainer::iterator;

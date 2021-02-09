@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2020 University of California, Los Angeles
+ * Copyright (c) 2012-2021 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -23,6 +23,7 @@
  */
 
 #include "state.hpp"
+#include "detail/tlv.hpp"
 
 #include <boost/range/adaptor/reversed.hpp>
 #include <ndn-cxx/util/exception.hpp>
@@ -36,20 +37,19 @@ State::update(const Name& info, const SeqNo& seq)
 {
   m_wire.reset();
 
-  LeafContainer::iterator leaf = m_leaves.find(info);
-
+  auto leaf = m_leaves.find(info);
   if (leaf == m_leaves.end()) {
-    m_leaves.insert(make_shared<Leaf>(info, cref(seq)));
-    return make_tuple(true, false, 0);
+    m_leaves.insert(make_shared<Leaf>(info, seq));
+    return std::make_tuple(true, false, 0);
   }
   else {
     if ((*leaf)->getSeq() == seq || seq < (*leaf)->getSeq()) {
-      return make_tuple(false, false, 0);
+      return std::make_tuple(false, false, 0);
     }
 
     SeqNo old = (*leaf)->getSeq();
     m_leaves.modify(leaf, [=] (LeafPtr& leaf) { leaf->setSeq(seq); } );
-    return make_tuple(false, true, old);
+    return std::make_tuple(false, true, old);
   }
 }
 
@@ -82,9 +82,9 @@ State::operator+=(const State& state)
   return *this;
 }
 
-template<encoding::Tag T>
+template<ndn::encoding::Tag T>
 size_t
-State::wireEncode(encoding::EncodingImpl<T>& block) const
+State::wireEncode(ndn::encoding::EncodingImpl<T>& block) const
 {
   size_t totalLength = 0;
 

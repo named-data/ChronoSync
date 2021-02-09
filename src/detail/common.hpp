@@ -23,7 +23,7 @@
 #ifndef CHRONOSYNC_DETAIL_COMMON_HPP
 #define CHRONOSYNC_DETAIL_COMMON_HPP
 
-#include "detail/config.hpp"
+#include "config.hpp"
 
 #ifdef CHRONOSYNC_WITH_TESTS
 #define CHRONOSYNC_VIRTUAL_WITH_TESTS virtual
@@ -38,11 +38,10 @@
 #endif
 
 #include <cstddef>
-#include <list>
-#include <queue>
+#include <functional>
+#include <memory>
 #include <set>
 #include <vector>
-#include <tuple>
 
 #include <ndn-cxx/data.hpp>
 #include <ndn-cxx/face.hpp>
@@ -55,22 +54,19 @@
 #include <ndn-cxx/util/time.hpp>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/asio.hpp>
 #include <boost/assert.hpp>
 #include <boost/core/noncopyable.hpp>
 #include <boost/lexical_cast.hpp>
 
 namespace chronosync {
 
-using std::size_t;
-
 using boost::noncopyable;
 
+using std::size_t;
+
 using std::bind;
-using std::cref;
 using std::function;
 using std::make_shared;
-using std::make_tuple;
 using std::ref;
 using std::shared_ptr;
 
@@ -79,17 +75,12 @@ using ndn::ConstBufferPtr;
 using ndn::Data;
 using ndn::Interest;
 using ndn::Name;
-using ndn::security::ValidationError;
 using ndn::security::Validator;
-
-namespace tlv {
-using namespace ndn::tlv;
-} // namespace tlv
+using ndn::security::ValidationError;
 
 namespace name = ndn::name;
 namespace time = ndn::time;
 namespace security = ndn::security;
-namespace encoding = ndn::encoding;
 
 } // namespace chronosync
 

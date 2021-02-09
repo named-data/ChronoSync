@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2017 University of California, Los Angeles
+ * Copyright (c) 2012-2021 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -26,9 +26,9 @@
 #define CHRONOSYNC_STATE_HPP
 
 #include "leaf-container.hpp"
-#include "tlv.hpp"
 
 #include <ndn-cxx/util/sha256.hpp>
+#include <tuple>
 
 namespace chronosync {
 
@@ -49,11 +49,7 @@ public:
   class Error : public std::runtime_error
   {
   public:
-    explicit
-    Error(const std::string& what)
-      : std::runtime_error(what)
-    {
-    }
+    using std::runtime_error::runtime_error;
   };
 
   virtual
@@ -112,9 +108,9 @@ public:
   wireDecode(const Block& wire);
 
 protected:
-  template<encoding::Tag T>
+  template<ndn::encoding::Tag T>
   size_t
-  wireEncode(encoding::EncodingImpl<T>& block) const;
+  wireEncode(ndn::encoding::EncodingImpl<T>& block) const;
 
 protected:
   LeafContainer m_leaves;
