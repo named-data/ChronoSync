@@ -1,5 +1,24 @@
 # Release Notes
 
+## Version 0.5.4
+
+- The build requirements have been increased to require Clang >= 4.0, Xcode >= 9.0,
+  and Python >= 3.6. Meanwhile, it is *recommended* to use GCC >= 7.4.0 and
+  Boost >= 1.65.1. This effectively drops official support for Ubuntu 16.04 when
+  using distribution-provided packages; ChronoSync may still work on this platform,
+  but we provide no official support for it.
+
+- Exceptions are now thrown using `NDN_THROW` instead of `BOOST_THROW_EXCEPTION`
+
+- The private header files `config.hpp`, `common.hpp`, `bzip2-helper.hpp`,
+  `mi-tag.hpp`, and `tlv.hpp` have been moved to a `detail` subdirectory
+
+- Fix compilation against the latest version of ndn-cxx
+
+- Fix incompatibility with the C++20 `<version>` header
+
+- Upgrade `waf` to version 2.0.21
+
 ## Version 0.5.3
 
 - Schedule sync Interest when receiving a NACK with reason `NoRoute` (Issue #5012)
@@ -28,7 +47,7 @@
 
 ## Version 0.5.0
 
-- **Breaking change:** Use bzip2 compression of sync Data payload (Issue #4140)
+- *Breaking change:* Use bzip2 compression of sync Data payload (Issue #4140)
 
 - Disallow Interest loopback on sync prefix (Issue #3979)
 
