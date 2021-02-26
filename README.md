@@ -4,6 +4,8 @@
 [![Build Status](https://travis-ci.org/named-data/ChronoSync.svg?branch=master)](https://travis-ci.org/named-data/ChronoSync)
 ![Latest Version](https://img.shields.io/github/tag/named-data/ChronoSync.svg?color=darkkhaki&label=latest%20version)
 
+> DEPRECATION NOTICE: ChronoSync's design is outdated. We recommend using more recent sync protocols, such as [PSync](https://named-data.net/doc/PSync/current/index.html) or [StateVectorSync](https://named-data.github.io/StateVectorSync/).
+
 In supporting many distributed applications, such as group text messaging, file sharing,
 and joint editing, a basic requirement is the efficient and robust synchronization of
 knowledge about the dataset such as text messages, changes to the shared folder, or
