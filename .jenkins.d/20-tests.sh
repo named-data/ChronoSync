@@ -3,7 +3,7 @@ set -ex
 
 # Prepare environment
 rm -rf ~/.ndn
-ndnsec-keygen "/tmp/jenkins/$NODE_NAME" | ndnsec-install-cert -
+ndnsec key-gen "/tmp/jenkins/$NODE_NAME" | ndnsec cert-install -
 
 # https://github.com/google/sanitizers/wiki/AddressSanitizerFlags
 ASAN_OPTIONS="color=always"
