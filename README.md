@@ -1,8 +1,9 @@
 # ChronoSync: synchronization library for distributed realtime applications for NDN
 
-![Language](https://img.shields.io/badge/C%2B%2B-14-blue.svg)
-[![Build Status](https://travis-ci.org/named-data/ChronoSync.svg?branch=master)](https://travis-ci.org/named-data/ChronoSync)
-![Latest Version](https://img.shields.io/github/tag/named-data/ChronoSync.svg?color=darkkhaki&label=latest%20version)
+[![CI](https://github.com/named-data/ChronoSync/actions/workflows/ci.yml/badge.svg)](https://github.com/named-data/ChronoSync/actions/workflows/ci.yml)
+[![Docs](https://github.com/named-data/ChronoSync/actions/workflows/docs.yml/badge.svg)](https://github.com/named-data/ChronoSync/actions/workflows/docs.yml)
+![Language](https://img.shields.io/badge/C%2B%2B-14-blue)
+![Latest version](https://img.shields.io/github/v/tag/named-data/ChronoSync?label=Latest%20version)
 
 > DEPRECATION NOTICE: ChronoSync's design is outdated. We recommend using more recent sync protocols, such as [PSync](https://named-data.net/doc/PSync/current/index.html) or [StateVectorSync](https://named-data.github.io/StateVectorSync/).
 

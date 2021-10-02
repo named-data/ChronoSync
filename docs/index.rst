@@ -8,15 +8,12 @@ ChronoSync - A synchronization Protocol in NDN
    DesignDoc
 
 * :doc:`DesignDoc`
-
-**Additional documentation**
-
 * `API documentation (doxygen) <doxygen/annotated.html>`_
 
 Downloading
 -----------
 
-* `Source code GitHub git repository <https://github.com/named-data/ChronoSync>`_.
+* `Source code git repository <https://github.com/named-data/ChronoSync>`_
 
 License
 -------
