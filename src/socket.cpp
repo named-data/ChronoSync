@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2021 University of California, Los Angeles
+ * Copyright (c) 2012-2022 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -124,7 +124,7 @@ void
 Socket::publishData(const Block& content, const ndn::time::milliseconds& freshness,
                     const Name& prefix)
 {
-  shared_ptr<Data> data = make_shared<Data>();
+  auto data = std::make_shared<Data>();
   data->setContent(content);
   data->setFreshnessPeriod(freshness);
 
@@ -147,7 +147,7 @@ void
 Socket::publishData(const Block& content, const ndn::time::milliseconds& freshness,
                     const uint64_t& seqNo, const Name& prefix)
 {
-  shared_ptr<Data> data = make_shared<Data>();
+  auto data = std::make_shared<Data>();
   data->setContent(content);
   data->setFreshnessPeriod(freshness);
 
@@ -176,7 +176,6 @@ Socket::fetchData(const Name& sessionName, const SeqNo& seqNo,
 
   Interest interest(interestName);
   interest.setMustBeFresh(true);
-  interest.setCanBePrefix(false);
 
   DataValidationErrorCallback failureCallback =
     bind(&Socket::onDataValidationFailed, this, _1, _2);
@@ -202,7 +201,6 @@ Socket::fetchData(const Name& sessionName, const SeqNo& seqNo,
 
   Interest interest(interestName);
   interest.setMustBeFresh(true);
-  interest.setCanBePrefix(false);
 
   m_face.expressInterest(interest,
                          bind(&Socket::onData, this, _1, _2, dataCallback, failureCallback),

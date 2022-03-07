@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2021 University of California, Los Angeles
+ * Copyright (c) 2012-2022 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -596,7 +596,6 @@ Logic::sendResetInterest()
 
   Interest interest(m_syncReset);
   interest.setMustBeFresh(true);
-  interest.setCanBePrefix(false); // no data is expected
   interest.setInterestLifetime(m_resetInterestLifetime);
 
   // Assigning to m_pendingResetInterest cancels the previous reset Interest.
