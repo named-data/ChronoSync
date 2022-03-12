@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2021 University of California, Los Angeles
+ * Copyright (c) 2012-2022 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -29,17 +29,11 @@
 namespace chronosync {
 namespace test {
 
-using ndn::chronosync::DummyForwarder;
-
 class Handler
 {
 public:
-  Handler(ndn::Face& face,
-          const Name& syncPrefix,
-          const Name& userPrefix)
-    : logic(face,
-            syncPrefix,
-            userPrefix,
+  Handler(ndn::Face& face, const Name& syncPrefix, const Name& userPrefix)
+    : logic(face, syncPrefix, userPrefix,
             bind(&Handler::onUpdate, this, _1))
   {
   }
@@ -87,7 +81,7 @@ public:
   Name syncPrefix;
   Name userPrefix[4];
 
-  DummyForwarder fw;
+  ndn::chronosync::DummyForwarder fw;
   // std::unique_ptr<DummyClientFace> faces[4];
   shared_ptr<Handler> handler[4];
 
@@ -98,7 +92,7 @@ public:
 BOOST_FIXTURE_TEST_SUITE(LogicTests, LogicFixture)
 
 static void
-onUpdate(const std::vector<MissingDataInfo>& v)
+onUpdate(const std::vector<MissingDataInfo>&)
 {
 }
 
@@ -407,7 +401,7 @@ BOOST_FIXTURE_TEST_CASE(VeryLargeState, ndn::tests::IdentityManagementTimeFixtur
   Logic logic(face, syncPrefix, userPrefix, bind(onUpdate, _1));
 
   State state;
-  for (size_t i = 0; i < 50000 && bzip2::compress(reinterpret_cast<const char*>(state.wireEncode().wire()),
+  for (size_t i = 0; i < 50000 && bzip2::compress(reinterpret_cast<const char*>(state.wireEncode().data()),
                                                   state.wireEncode().size())->size() < ndn::MAX_NDN_PACKET_SIZE;
        i += 10) {
     Name prefix("/to/trim");

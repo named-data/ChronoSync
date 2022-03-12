@@ -273,10 +273,7 @@ Logic::updateSeqNo(const SeqNo& seqNo, const Name& updatePrefix)
     if (!m_isInReset) {
       CHRONO_LOG_DBG("updateSeqNo: not in Reset");
       ConstBufferPtr previousRoot = m_state.getRootDigest();
-      {
-        std::string hash = ndn::toHex(previousRoot->data(), previousRoot->size(), false);
-        CHRONO_LOG_DBG("Hash: " << hash);
-      }
+      printDigest(previousRoot);
 
       bool isInserted = false;
       bool isUpdated = false;
@@ -398,7 +395,7 @@ Logic::onSyncDataValidationFailed(const Data&)
 void
 Logic::onSyncDataValidated(const Data& data)
 {
-  Name name = data.getName();
+  const auto& name = data.getName();
   ConstBufferPtr digest = make_shared<ndn::Buffer>(name.get(-1).value(), name.get(-1).value_size());
 
   try {
@@ -407,7 +404,7 @@ Logic::onSyncDataValidated(const Data& data)
     processSyncData(name, digest, Block(std::move(contentBuffer)));
   }
   catch (const std::ios_base::failure& error) {
-    NDN_LOG_WARN("Error decompressing content of " << data.getName() << " (" << error.what() << ")");
+    NDN_LOG_WARN("Error decompressing content of " << name << " (" << error.what() << ")");
   }
 }
 
@@ -416,9 +413,8 @@ Logic::processSyncInterest(const Interest& interest, bool isTimedProcessing/*=fa
 {
   CHRONO_LOG_DBG(">> Logic::processSyncInterest");
 
-  Name name = interest.getName();
+  const auto& name = interest.getName();
   ConstBufferPtr digest = make_shared<ndn::Buffer>(name.get(-1).value(), name.get(-1).value_size());
-
   ConstBufferPtr rootDigest = m_state.getRootDigest();
 
   // If the digest of the incoming interest is the same as root digest
@@ -669,7 +665,7 @@ Logic::encodeSyncReply(const Name& nodePrefix, const Name& name, const State& st
   syncReply.setFreshnessPeriod(m_syncReplyFreshness);
 
   auto finalizeReply = [this, &nodePrefix, &syncReply] (const State& state) {
-    auto contentBuffer = bzip2::compress(reinterpret_cast<const char*>(state.wireEncode().wire()),
+    auto contentBuffer = bzip2::compress(reinterpret_cast<const char*>(state.wireEncode().data()),
                                          state.wireEncode().size());
     syncReply.setContent(contentBuffer);
 
@@ -737,10 +733,9 @@ Logic::cancelReset()
 }
 
 void
-Logic::printDigest(ConstBufferPtr digest)
+Logic::printDigest(const ConstBufferPtr& digest) const
 {
-  std::string hash = ndn::toHex(digest->data(), digest->size(), false);
-  CHRONO_LOG_DBG("Hash: " << hash);
+  CHRONO_LOG_DBG("Hash: " << ndn::toHex(*digest, false));
 }
 
 void
@@ -771,7 +766,7 @@ Logic::processRecoveryInterest(const Interest& interest)
 {
   CHRONO_LOG_DBG(">> Logic::processRecoveryInterest");
 
-  Name name = interest.getName();
+  const auto& name = interest.getName();
   ConstBufferPtr digest = make_shared<ndn::Buffer>(name.get(-1).value(), name.get(-1).value_size());
   ConstBufferPtr rootDigest = m_state.getRootDigest();
 

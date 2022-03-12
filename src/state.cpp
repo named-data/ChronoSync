@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2021 University of California, Los Angeles
+ * Copyright (c) 2012-2022 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -48,7 +48,7 @@ State::update(const Name& info, const SeqNo& seq)
     }
 
     SeqNo old = (*leaf)->getSeq();
-    m_leaves.modify(leaf, [=] (LeafPtr& leaf) { leaf->setSeq(seq); } );
+    m_leaves.modify(leaf, [seq] (LeafPtr& leaf) { leaf->setSeq(seq); } );
     return std::make_tuple(false, true, old);
   }
 }
@@ -60,7 +60,7 @@ State::getRootDigest() const
 
   for (const auto& leaf : m_leaves.get<ordered>()) {
     BOOST_ASSERT(leaf != nullptr);
-    m_digest.update(leaf->getDigest()->data(), leaf->getDigest()->size());
+    m_digest.update(*leaf->getDigest());
   }
 
   return m_digest.computeDigest();

@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2021 University of California, Los Angeles
+ * Copyright (c) 2012-2022 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -399,7 +399,7 @@ private:
   cancelReset();
 
   void
-  printDigest(ConstBufferPtr digest);
+  printDigest(const ConstBufferPtr& digest) const;
 
   /**
    * @brief Helper method to send Recovery Interest

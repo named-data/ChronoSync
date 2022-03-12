@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2019 University of California, Los Angeles
+ * Copyright (c) 2012-2022 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -32,24 +32,24 @@ class InterestTableFixture : public ndn::tests::UnitTestTimeFixture
 public:
   InterestTableFixture()
   {
-    uint8_t origin[4] = {0x01, 0x02, 0x03, 0x04};
+    const uint8_t origin[] = {0x01, 0x02, 0x03, 0x04};
     Name prefix("/test/prefix");
 
     Name interestName1;
-    digest1 = ndn::util::Sha256::computeDigest(origin, 1);
+    digest1 = ndn::util::Sha256::computeDigest({origin, 1});
     interestName1.append(prefix).append(name::Component(digest1));
 
     interest1 = Interest(interestName1);
     interest1.setInterestLifetime(time::milliseconds(100));
 
     Name interestName2;
-    digest2 = ndn::util::Sha256::computeDigest(origin, 2);
+    digest2 = ndn::util::Sha256::computeDigest({origin, 2});
     interestName2.append(prefix).append(name::Component(digest2));
     interest2 = Interest(interestName2);
     interest2.setInterestLifetime(time::milliseconds(100));
 
     Name interestName3;
-    digest3 = ndn::util::Sha256::computeDigest(origin, 3);
+    digest3 = ndn::util::Sha256::computeDigest({origin, 3});
     interestName3.append(prefix).append(name::Component(digest3));
     interest3 = Interest(interestName3);
     interest3.setInterestLifetime(time::milliseconds(100));

@@ -55,8 +55,8 @@ Socket::Socket(const Name& syncPrefix,
   if (m_userPrefix != DEFAULT_NAME)
     m_registeredPrefixList[m_userPrefix] =
       m_face.setInterestFilter(m_userPrefix,
-                               bind(&Socket::onInterest, this, _1, _2),
-                               [] (const Name&, const std::string&) {});
+                               [this] (auto&&... args) { onInterest(std::forward<decltype(args)>(args)...); },
+                               [] (auto&&...) {});
   NDN_LOG_DEBUG("<< Socket::Socket");
 }
 
@@ -84,8 +84,8 @@ Socket::addSyncNode(const Name& prefix, const Name& signingId, const name::Compo
   m_logic.addUserNode(prefix, signingId, session);
   m_registeredPrefixList[prefix] =
     m_face.setInterestFilter(prefix,
-                             bind(&Socket::onInterest, this, _1, _2),
-                             [] (const Name&, const std::string&) {});
+                             [this] (auto&&... args) { onInterest(std::forward<decltype(args)>(args)...); },
+                             [] (auto&&...) {});
 
   NDN_LOG_DEBUG("<< addSyncNode");
 }
@@ -110,14 +110,14 @@ void
 Socket::publishData(const uint8_t* buf, size_t len, const ndn::time::milliseconds& freshness,
                     const Name& prefix)
 {
-  publishData(ndn::encoding::makeBinaryBlock(ndn::tlv::Content, buf, len), freshness, prefix);
+  publishData(ndn::makeBinaryBlock(ndn::tlv::Content, {buf, len}), freshness, prefix);
 }
 
 void
 Socket::publishData(const uint8_t* buf, size_t len, const ndn::time::milliseconds& freshness,
                     const uint64_t& seqNo, const Name& prefix)
 {
-  publishData(ndn::encoding::makeBinaryBlock(ndn::tlv::Content, buf, len), freshness, seqNo, prefix);
+  publishData(ndn::makeBinaryBlock(ndn::tlv::Content, {buf, len}), freshness, seqNo, prefix);
 }
 
 void
@@ -178,7 +178,7 @@ Socket::fetchData(const Name& sessionName, const SeqNo& seqNo,
   interest.setMustBeFresh(true);
 
   DataValidationErrorCallback failureCallback =
-    bind(&Socket::onDataValidationFailed, this, _1, _2);
+    [this] (auto&&... args) { onDataValidationFailed(std::forward<decltype(args)>(args)...); };
 
   m_face.expressInterest(interest,
                          bind(&Socket::onData, this, _1, _2, dataCallback, failureCallback),
@@ -254,8 +254,7 @@ Socket::onDataTimeout(const Interest& interest, int nRetries,
 }
 
 void
-Socket::onDataValidationFailed(const Data& data,
-                               const ValidationError& error)
+Socket::onDataValidationFailed(const Data&, const ValidationError&)
 {
 }
 

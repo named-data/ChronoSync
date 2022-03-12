@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2019 University of California, Los Angeles
+ * Copyright (c) 2012-2022 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -148,16 +148,15 @@ BOOST_AUTO_TEST_CASE(DecodeEncode)
           0x04
   };
 
-  Block block(wire, sizeof(wire));
+  Block block(wire);
   State state;
   BOOST_REQUIRE_NO_THROW(state.wireDecode(block));
 
   BOOST_CHECK_EQUAL(state.getLeaves().size(), 2);
-  LeafContainer::index<ordered>::type::iterator it = state.getLeaves().get<ordered>().begin();
+  auto it = state.getLeaves().get<ordered>().begin();
   BOOST_CHECK_EQUAL((*it)->getSeq(), 14);
   it++;
   BOOST_CHECK_EQUAL((*it)->getSeq(), 4);
-
 
   State state2;
 
@@ -169,15 +168,9 @@ BOOST_AUTO_TEST_CASE(DecodeEncode)
   info2.appendNumber(1);
   state2.update(info2, 4);
 
-  BOOST_REQUIRE_NO_THROW(state2.wireEncode());
   Block block2 = state2.wireEncode();
-
-  BOOST_CHECK_EQUAL_COLLECTIONS(block.wire(),
-                                block.wire() + block.size(),
-                                block2.wire(),
-                                block2.wire() + block2.size());
-
-  BOOST_CHECK(*state.getRootDigest() == *state2.getRootDigest());
+  BOOST_TEST(block == block2, boost::test_tools::per_element());
+  BOOST_TEST(*state.getRootDigest() == *state2.getRootDigest(), boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_CASE(Combine)
@@ -208,7 +201,7 @@ BOOST_AUTO_TEST_CASE(Combine)
   BOOST_CHECK_EQUAL(state1.getLeaves().size(), 2);
   BOOST_CHECK_EQUAL(state2.getLeaves().size(), 3);
 
-  LeafContainer::index<ordered>::type::iterator it = state2.getLeaves().get<ordered>().begin();
+  auto it = state2.getLeaves().get<ordered>().begin();
   BOOST_CHECK_EQUAL((*it)->getSeq(), 4);
   it++;
   BOOST_CHECK_EQUAL((*it)->getSeq(), 15);

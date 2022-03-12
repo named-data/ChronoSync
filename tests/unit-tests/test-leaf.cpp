@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2019 University of California, Los Angeles
+ * Copyright (c) 2012-2022 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -54,10 +54,7 @@ BOOST_AUTO_TEST_CASE(LeafDigest)
   Name userPrefix("/test/name");
   Leaf leaf(userPrefix, 1, 10);
 
-  BOOST_CHECK_NO_THROW(leaf.getDigest());
-
-  ndn::ConstBufferPtr digest = leaf.getDigest();
-  BOOST_CHECK_EQUAL(result, ndn::toHex(digest->data(), digest->size(), false));
+  BOOST_CHECK_EQUAL(result, ndn::toHex(*leaf.getDigest(), false));
 }
 
 BOOST_AUTO_TEST_CASE(Container)

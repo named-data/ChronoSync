@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2021 University of California, Los Angeles
+ * Copyright (c) 2012-2022 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -42,14 +42,12 @@ namespace mi = boost::multi_index;
 
 struct SessionNameHash
 {
+  static_assert(ndn::util::Sha256::DIGEST_SIZE >= sizeof(std::size_t), "");
+
   std::size_t
   operator()(const Name& prefix) const
   {
-    ConstBufferPtr buffer =
-      ndn::util::Sha256::computeDigest(prefix.wireEncode().wire(), prefix.wireEncode().size());
-
-    BOOST_ASSERT(buffer->size() > sizeof(std::size_t));
-
+    auto buffer = ndn::util::Sha256::computeDigest(prefix.wireEncode());
     return *reinterpret_cast<const std::size_t*>(buffer->data());
   }
 };
