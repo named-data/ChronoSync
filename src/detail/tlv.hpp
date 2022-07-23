@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2021 University of California, Los Angeles
+ * Copyright (c) 2012-2022 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -22,8 +22,7 @@
 #ifndef CHRONOSYNC_DETAIL_TLV_HPP
 #define CHRONOSYNC_DETAIL_TLV_HPP
 
-namespace chronosync {
-namespace tlv {
+namespace chronosync::tlv {
 
 /**
  * @brief Type value of sync reply related TLVs
@@ -35,7 +34,6 @@ enum {
   SeqNo       = 130, // 0x82
 };
 
-} // namespace tlv
-} // namespace chronosync
+} // namespace chronosync::tlv
 
 #endif // CHRONOSYNC_DETAIL_TLV_HPP

@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2019 University of California, Los Angeles
+ * Copyright (c) 2012-2022 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -52,11 +52,7 @@ public:
   class Error : public std::runtime_error
   {
   public:
-    explicit
-    Error(const std::string& what)
-      : std::runtime_error(what)
-    {
-    }
+    using std::runtime_error::runtime_error;
   };
 
   Socket(const Name& syncPrefix,
@@ -70,9 +66,8 @@ public:
 
   ~Socket();
 
-  using DataValidatedCallback = function<void(const Data&)>;
-
-  using DataValidationErrorCallback = function<void(const Data&, const ValidationError& error)> ;
+  using DataValidatedCallback = std::function<void(const Data&)>;
+  using DataValidationErrorCallback = std::function<void(const Data&, const ValidationError& error)> ;
 
   /**
    * @brief Add a sync node under same logic
@@ -232,12 +227,12 @@ private:
                          const ValidationError& error);
 
 public:
-  static const ndn::Name DEFAULT_NAME;
-  static const ndn::Name DEFAULT_PREFIX;
-  static const std::shared_ptr<Validator> DEFAULT_VALIDATOR;
+  static inline const Name DEFAULT_NAME;
+  static inline const Name DEFAULT_PREFIX;
+  static inline const std::shared_ptr<Validator> DEFAULT_VALIDATOR;
 
 private:
-  using RegisteredPrefixList = std::unordered_map<ndn::Name, ndn::RegisteredPrefixHandle>;
+  using RegisteredPrefixList = std::unordered_map<Name, ndn::RegisteredPrefixHandle>;
 
   Name m_userPrefix;
   ndn::Face& m_face;

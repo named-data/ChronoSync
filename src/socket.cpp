@@ -30,10 +30,6 @@ NDN_LOG_INIT(sync.Socket);
 
 namespace chronosync {
 
-const ndn::Name Socket::DEFAULT_NAME;
-const ndn::Name Socket::DEFAULT_PREFIX;
-const std::shared_ptr<Validator> Socket::DEFAULT_VALIDATOR;
-
 Socket::Socket(const Name& syncPrefix,
                const Name& userPrefix,
                ndn::Face& face,
@@ -49,14 +45,16 @@ Socket::Socket(const Name& syncPrefix,
             syncInterestLifetime, Logic::DEFAULT_SYNC_REPLY_FRESHNESS, Logic::DEFAULT_RECOVERY_INTEREST_LIFETIME,
             session)
   , m_signingId(signingId)
-  , m_validator(validator)
+  , m_validator(std::move(validator))
 {
   NDN_LOG_DEBUG(">> Socket::Socket");
+
   if (m_userPrefix != DEFAULT_NAME)
     m_registeredPrefixList[m_userPrefix] =
       m_face.setInterestFilter(m_userPrefix,
                                [this] (auto&&... args) { onInterest(std::forward<decltype(args)>(args)...); },
                                [] (auto&&...) {});
+
   NDN_LOG_DEBUG("<< Socket::Socket");
 }
 

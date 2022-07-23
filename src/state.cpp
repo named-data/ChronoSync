@@ -40,16 +40,16 @@ State::update(const Name& info, const SeqNo& seq)
   auto leaf = m_leaves.find(info);
   if (leaf == m_leaves.end()) {
     m_leaves.insert(make_shared<Leaf>(info, seq));
-    return std::make_tuple(true, false, 0);
+    return {true, false, 0};
   }
   else {
     if ((*leaf)->getSeq() == seq || seq < (*leaf)->getSeq()) {
-      return std::make_tuple(false, false, 0);
+      return {false, false, 0};
     }
 
     SeqNo old = (*leaf)->getSeq();
     m_leaves.modify(leaf, [seq] (LeafPtr& leaf) { leaf->setSeq(seq); } );
-    return std::make_tuple(false, true, old);
+    return {false, true, old};
   }
 }
 
@@ -128,7 +128,7 @@ State::wireDecode(const Block& wire)
     NDN_THROW(Error("The supplied block does not contain wire format"));
 
   if (wire.type() != tlv::SyncReply)
-    NDN_THROW(Error("Unexpected TLV type when decoding SyncReply: " + ndn::to_string(wire.type())));
+    NDN_THROW(Error("Unexpected TLV type when decoding SyncReply: " + std::to_string(wire.type())));
 
   wire.parse();
   m_wire = wire;

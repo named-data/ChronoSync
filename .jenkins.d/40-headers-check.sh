@@ -17,7 +17,7 @@ if has CentOS-8 $NODE_LABELS; then
 fi
 
 CXX=${CXX:-g++}
-STD=-std=c++14
+STD=-std=c++17
 CXXFLAGS="-O2 -Wall -Wno-unneeded-internal-declaration -Wno-unused-const-variable $(pkg-config --cflags libndn-cxx $PROJ)"
 INCLUDEDIR="$(pkg-config --variable=includedir $PROJ)"/$PROJ
 

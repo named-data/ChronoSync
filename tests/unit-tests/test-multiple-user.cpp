@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2019 University of California, Los Angeles
+ * Copyright (c) 2012-2022 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -27,18 +27,8 @@ namespace test {
 class Handler
 {
 public:
-  Handler(ndn::Face& face,
-          const Name& syncPrefix,
-          const Name& userPrefix)
-    : logic(face,
-            syncPrefix,
-            userPrefix,
-            bind(&Handler::onUpdate, this, _1))
-  {
-  }
-
-  void
-  onUpdate(const std::vector<MissingDataInfo>& v)
+  Handler(ndn::Face& face, const Name& syncPrefix, const Name& userPrefix)
+    : logic(face, syncPrefix, userPrefix, [] (auto&&...) {})
   {
   }
 
@@ -76,7 +66,7 @@ public:
     userPrefix[1] = Name("/user1");
     userPrefix[2] = Name("/user2");
 
-    face = make_shared<ndn::Face>(ref(io));
+    face = std::make_shared<ndn::Face>(io);
   }
 
   Name syncPrefix;
@@ -92,7 +82,7 @@ BOOST_FIXTURE_TEST_SUITE(MultiUserTests, MultiUserFixture)
 
 BOOST_AUTO_TEST_CASE(ThreeUserNode)
 {
-  handler = make_shared<Handler>(ref(*face), syncPrefix, userPrefix[0]);
+  handler = std::make_shared<Handler>(*face, syncPrefix, userPrefix[0]);
   handler->addUserNode(userPrefix[1]);
   handler->addUserNode(userPrefix[2]);
   handler->removeUserNode(userPrefix[0]);

@@ -432,12 +432,12 @@ public:
   {
     unsetenv("CHRONOSYNC_MAX_PACKET_SIZE");
     if (oldSize) {
-      setenv("CHRONOSYNC_MAX_PACKET_SIZE", oldSize->c_str(), 1);
+      setenv("CHRONOSYNC_MAX_PACKET_SIZE", oldSize->data(), 1);
     }
   }
 
 private:
-  ndn::optional<std::string> oldSize;
+  std::optional<std::string> oldSize;
 };
 
 BOOST_FIXTURE_TEST_CASE(MaxPacketCustomization, MaxPacketCustomizationFixture)
@@ -447,7 +447,7 @@ BOOST_FIXTURE_TEST_CASE(MaxPacketCustomization, MaxPacketCustomizationFixture)
   setenv("CHRONOSYNC_MAX_PACKET_SIZE", "1500", 1);
   BOOST_CHECK_EQUAL(getMaxPacketLimit(), 1500);
 
-  setenv("CHRONOSYNC_MAX_PACKET_SIZE", ndn::to_string(ndn::MAX_NDN_PACKET_SIZE * 100).c_str(), 1);
+  setenv("CHRONOSYNC_MAX_PACKET_SIZE", std::to_string(ndn::MAX_NDN_PACKET_SIZE * 100).data(), 1);
   BOOST_CHECK_EQUAL(getMaxPacketLimit(), ndn::MAX_NDN_PACKET_SIZE);
 
   setenv("CHRONOSYNC_MAX_PACKET_SIZE", "1", 1);

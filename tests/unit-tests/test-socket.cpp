@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2019 University of California, Los Angeles
+ * Copyright (c) 2012-2022 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -48,7 +48,7 @@ public:
              userPrefix,
              face,
              isNum ? bind(&SocketTestApp::fetchNumbers, this, _1) :
-                          bind(&SocketTestApp::fetchAll, this, _1),
+                     bind(&SocketTestApp::fetchAll, this, _1),
              Logic::DEFAULT_NAME,
              Logic::DEFAULT_VALIDATOR,
              Logic::DEFAULT_SYNC_INTEREST_LIFETIME,
@@ -63,14 +63,14 @@ public:
     Name dataName(dataPacket.getName());
     string str2(reinterpret_cast<const char*>(dataPacket.getContent().value()),
                 dataPacket.getContent().value_size());
-    data.insert(make_pair(dataName, str2));
+    data.emplace(dataName, str2);
   }
 
   void
   set(Name name, const char* buf, int len)
   {
     string str2(buf, len);
-    data.insert(make_pair(name, str2));
+    data.emplace(name, str2);
   }
 
   void
@@ -139,7 +139,7 @@ public:
   }
 
 public:
-  std::map<ndn::Name, string> data;
+  std::map<Name, string> data;
   uint32_t sum;
   Socket socket;
 };
@@ -194,7 +194,7 @@ public:
   void
   createSocket(size_t idx, bool isNum)
   {
-    app[idx] = make_shared<SocketTestApp>(syncPrefix, userPrefix[idx], ref(*faces[idx]), isNum);
+    app[idx] = make_shared<SocketTestApp>(syncPrefix, userPrefix[idx], std::ref(*faces[idx]), isNum);
     sessionName[idx] = app[idx]->socket.getLogic().getSessionName();
   }
 

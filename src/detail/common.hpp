@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2021 University of California, Los Angeles
+ * Copyright (c) 2012-2022 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -65,9 +65,7 @@ using boost::noncopyable;
 using std::size_t;
 
 using std::bind;
-using std::function;
 using std::make_shared;
-using std::ref;
 using std::shared_ptr;
 
 using ndn::Block;
@@ -79,8 +77,9 @@ using ndn::security::Validator;
 using ndn::security::ValidationError;
 
 namespace name = ndn::name;
-namespace time = ndn::time;
 namespace security = ndn::security;
+namespace time = ndn::time;
+using namespace ndn::time_literals;
 
 } // namespace chronosync
 

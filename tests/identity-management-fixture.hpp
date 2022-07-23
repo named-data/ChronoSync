@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2021 University of California, Los Angeles
+ * Copyright (c) 2012-2022 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -17,15 +17,14 @@
  * ChronoSync, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NDN_TESTS_IDENTITY_MANAGEMENT_FIXTURE_HPP
-#define NDN_TESTS_IDENTITY_MANAGEMENT_FIXTURE_HPP
+#ifndef CHRONOSYNC_TESTS_IDENTITY_MANAGEMENT_FIXTURE_HPP
+#define CHRONOSYNC_TESTS_IDENTITY_MANAGEMENT_FIXTURE_HPP
 
 #include "detail/common.hpp"
 
 #include "unit-test-time-fixture.hpp"
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 /** \brief a fixture that cleans up KeyChain identities and certificate files upon destruction
  */
@@ -69,7 +68,6 @@ class IdentityManagementTimeFixture : public UnitTestTimeFixture
 {
 };
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests
 
-#endif // NDN_TESTS_IDENTITY_MANAGEMENT_FIXTURE_HPP
+#endif // CHRONOSYNC_TESTS_IDENTITY_MANAGEMENT_FIXTURE_HPP

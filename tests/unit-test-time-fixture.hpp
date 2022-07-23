@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2017 University of California, Los Angeles
+ * Copyright (c) 2012-2022 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -17,15 +17,14 @@
  * ChronoSync, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
-#define NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
+#ifndef CHRONOSYNC_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
+#define CHRONOSYNC_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
 
 #include <ndn-cxx/util/time-unit-test-clock.hpp>
 
 #include <boost/asio.hpp>
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 class UnitTestTimeFixture
 {
@@ -61,7 +60,6 @@ public:
   boost::asio::io_service io;
 };
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests
 
-#endif // NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
+#endif // CHRONOSYNC_TESTS_UNIT_TEST_TIME_FIXTURE_HPP

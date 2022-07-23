@@ -37,29 +37,15 @@ NDN_LOG_INIT(sync.Logic);
 
 namespace chronosync {
 
-const uint8_t EMPTY_DIGEST_VALUE[] = {
+const std::vector<uint8_t> EMPTY_DIGEST{
   0xe3, 0xb0, 0xc4, 0x42, 0x98, 0xfc, 0x1c, 0x14,
   0x9a, 0xfb, 0xf4, 0xc8, 0x99, 0x6f, 0xb9, 0x24,
   0x27, 0xae, 0x41, 0xe4, 0x64, 0x9b, 0x93, 0x4c,
   0xa4, 0x95, 0x99, 0x1b, 0x78, 0x52, 0xb8, 0x55
 };
 
-int Logic::s_instanceCounter = 0;
-
-const ndn::Name Logic::DEFAULT_NAME;
-const ndn::Name Logic::EMPTY_NAME;
-const std::shared_ptr<Validator> Logic::DEFAULT_VALIDATOR;
-const time::steady_clock::Duration Logic::DEFAULT_RESET_TIMER = time::seconds(0);
-const time::steady_clock::Duration Logic::DEFAULT_CANCEL_RESET_TIMER = time::milliseconds(500);
-const time::milliseconds Logic::DEFAULT_RESET_INTEREST_LIFETIME(1000);
-const time::milliseconds Logic::DEFAULT_SYNC_INTEREST_LIFETIME(1000);
-const time::milliseconds Logic::DEFAULT_SYNC_REPLY_FRESHNESS(1000);
-const time::milliseconds Logic::DEFAULT_RECOVERY_INTEREST_LIFETIME(1000);
-
-const ConstBufferPtr Logic::EMPTY_DIGEST(new ndn::Buffer(EMPTY_DIGEST_VALUE, 32));
-const ndn::name::Component Logic::RESET_COMPONENT("reset");
-const ndn::name::Component Logic::RECOVERY_COMPONENT("recovery");
-
+const name::Component RESET_COMPONENT("reset");
+const name::Component RECOVERY_COMPONENT("recovery");
 const size_t NDNLP_EXPECTED_OVERHEAD = 20;
 
 /**
@@ -84,7 +70,7 @@ getMaxPacketLimit()
 
   if (getenv("CHRONOSYNC_MAX_PACKET_SIZE") != nullptr) {
     try {
-      limit = ndn::clamp<size_t>(boost::lexical_cast<size_t>(getenv("CHRONOSYNC_MAX_PACKET_SIZE")),
+      limit = std::clamp<size_t>(boost::lexical_cast<size_t>(getenv("CHRONOSYNC_MAX_PACKET_SIZE")),
                                  500, ndn::MAX_NDN_PACKET_SIZE);
     }
     catch (const boost::bad_lexical_cast&) {
@@ -104,8 +90,8 @@ Logic::Logic(ndn::Face& face,
              const UpdateCallback& onUpdate,
              const Name& defaultSigningId,
              std::shared_ptr<Validator> validator,
-             const time::steady_clock::Duration& resetTimer,
-             const time::steady_clock::Duration& cancelResetTimer,
+             const time::steady_clock::duration& resetTimer,
+             const time::steady_clock::duration& cancelResetTimer,
              const time::milliseconds& resetInterestLifetime,
              const time::milliseconds& syncInterestLifetime,
              const time::milliseconds& syncReplyFreshness,
@@ -129,7 +115,7 @@ Logic::Logic(ndn::Face& face,
   , m_syncInterestLifetime(syncInterestLifetime)
   , m_syncReplyFreshness(syncReplyFreshness)
   , m_recoveryInterestLifetime(recoveryInterestLifetime)
-  , m_validator(validator)
+  , m_validator(std::move(validator))
   , m_instanceId(s_instanceCounter++)
 {
   CHRONO_LOG_DBG(">> Logic::Logic");
@@ -275,19 +261,16 @@ Logic::updateSeqNo(const SeqNo& seqNo, const Name& updatePrefix)
       ConstBufferPtr previousRoot = m_state.getRootDigest();
       printDigest(previousRoot);
 
-      bool isInserted = false;
-      bool isUpdated = false;
-      SeqNo oldSeq;
-      std::tie(isInserted, isUpdated, oldSeq) = m_state.update(node.sessionName, node.seqNo);
-
+      auto [isInserted, isUpdated, oldSeq] = m_state.update(node.sessionName, node.seqNo);
       CHRONO_LOG_DBG("Insert: " << std::boolalpha << isInserted);
       CHRONO_LOG_DBG("Updated: " << std::boolalpha << isUpdated);
+      (void)oldSeq; // silence "unused variable" warning with gcc 7
+
       if (isInserted || isUpdated) {
         DiffStatePtr commit = make_shared<DiffState>();
         commit->update(node.sessionName, node.seqNo);
         commit->setRootDigest(m_state.getRootDigest());
         insertToDiffLog(commit, previousRoot);
-
         satisfyPendingSyncInterests(prefix, commit);
       }
     }
@@ -445,7 +428,7 @@ Logic::processSyncInterest(const Interest& interest, bool isTimedProcessing/*=fa
   }
 
   // If the digest of incoming interest is an "empty" digest
-  if (*digest == *EMPTY_DIGEST) {
+  if (*digest == EMPTY_DIGEST) {
     CHRONO_LOG_DBG("Poor guy, he knows nothing");
     sendSyncData(m_defaultUserPrefix, name, m_state);
     return;
@@ -505,10 +488,7 @@ Logic::processSyncData(const Name&, ConstBufferPtr digest, const Block& syncRepl
       const Name& info = leaf->getSessionName();
       SeqNo seq = leaf->getSeq();
 
-      bool isInserted = false;
-      bool isUpdated = false;
-      SeqNo oldSeq;
-      std::tie(isInserted, isUpdated, oldSeq) = m_state.update(info, seq);
+      auto [isInserted, isUpdated, oldSeq] = m_state.update(info, seq);
       if (isInserted || isUpdated) {
         commit->update(info, seq);
         oldSeq++;
@@ -610,7 +590,7 @@ Logic::sendSyncInterest()
 
   Name interestName;
   interestName.append(m_syncPrefix)
-    .append(ndn::name::Component(*m_state.getRootDigest()));
+    .append(name::Component(*m_state.getRootDigest()));
 
   m_pendingSyncInterestName = interestName;
 
@@ -688,7 +668,7 @@ Logic::encodeSyncReply(const Name& nodePrefix, const Name& name, const State& st
     trimState(partialState, state, nExcludedStates);
     finalizeReply(partialState);
 
-    BOOST_ASSERT(state.getLeaves().size() != 0);
+    BOOST_ASSERT(!state.getLeaves().empty());
     nExcludedStates *= 2;
   }
 
@@ -746,7 +726,7 @@ Logic::sendRecoveryInterest(ConstBufferPtr digest)
   Name interestName;
   interestName.append(m_syncPrefix)
               .append(RECOVERY_COMPONENT)
-              .append(ndn::name::Component(*digest));
+              .append(name::Component(*digest));
 
   Interest interest(interestName);
   interest.setMustBeFresh(true);
@@ -771,7 +751,7 @@ Logic::processRecoveryInterest(const Interest& interest)
   ConstBufferPtr rootDigest = m_state.getRootDigest();
 
   auto stateIter = m_log.find(digest);
-  if (stateIter != m_log.end() || *digest == *EMPTY_DIGEST || *rootDigest == *digest) {
+  if (stateIter != m_log.end() || *digest == EMPTY_DIGEST || *rootDigest == *digest) {
     CHRONO_LOG_DBG("I can help you recover");
     sendSyncData(m_defaultUserPrefix, name, m_state);
     return;

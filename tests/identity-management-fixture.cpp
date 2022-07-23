@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2017 University of California, Los Angeles
+ * Copyright (c) 2012-2022 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -22,8 +22,7 @@
 #include <ndn-cxx/util/io.hpp>
 #include <boost/filesystem.hpp>
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 IdentityManagementFixture::IdentityManagementFixture()
   : m_keyChain("pib-memory:", "tpm-memory:")
@@ -75,5 +74,4 @@ IdentityManagementFixture::saveIdentityCertificate(const Name& identity, const s
   }
 }
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

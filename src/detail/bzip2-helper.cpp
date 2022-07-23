@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2021 University of California, Los Angeles
+ * Copyright (c) 2012-2022 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -27,8 +27,7 @@
 
 #include <ndn-cxx/encoding/buffer-stream.hpp>
 
-namespace chronosync {
-namespace bzip2 {
+namespace chronosync::bzip2 {
 
 namespace bio = boost::iostreams;
 
@@ -56,5 +55,4 @@ decompress(const char* buffer, size_t bufferSize)
   return os.buf();
 }
 
-} // namespace bzip2
-} // namespace chronosync
+} // namespace chronosync::bzip2

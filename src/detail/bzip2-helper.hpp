@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2021 University of California, Los Angeles
+ * Copyright (c) 2012-2022 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -22,8 +22,7 @@
 
 #include <ndn-cxx/encoding/buffer.hpp>
 
-namespace chronosync {
-namespace bzip2 {
+namespace chronosync::bzip2 {
 
 /**
  * @brief Compress @p buffer of size @p bufferSize with bzip2
@@ -37,7 +36,6 @@ compress(const char* buffer, size_t bufferSize);
 std::shared_ptr<ndn::Buffer>
 decompress(const char* buffer, size_t bufferSize);
 
-} // namespace bzip2
-} // namespace chronosync
+} // namespace chronosync::bzip2
 
 #endif // CHRONOSYNC_DETAIL_BZIP2_HELPER_HPP

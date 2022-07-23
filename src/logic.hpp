@@ -70,7 +70,7 @@ public:
  * The parameter is a set of MissingDataInfo, of which each corresponds to
  * a session that has changed its state.
  */
-using UpdateCallback = function<void(const std::vector<MissingDataInfo>&)>;
+using UpdateCallback = std::function<void(const std::vector<MissingDataInfo>&)>;
 
 /**
  * @brief Logic of ChronoSync
@@ -84,12 +84,15 @@ public:
     using std::runtime_error::runtime_error;
   };
 
-  static const time::steady_clock::Duration DEFAULT_RESET_TIMER;
-  static const time::steady_clock::Duration DEFAULT_CANCEL_RESET_TIMER;
-  static const time::milliseconds DEFAULT_RESET_INTEREST_LIFETIME;
-  static const time::milliseconds DEFAULT_SYNC_INTEREST_LIFETIME;
-  static const time::milliseconds DEFAULT_SYNC_REPLY_FRESHNESS;
-  static const time::milliseconds DEFAULT_RECOVERY_INTEREST_LIFETIME;
+  static inline const Name EMPTY_NAME;
+  static inline const Name DEFAULT_NAME;
+  static inline const std::shared_ptr<Validator> DEFAULT_VALIDATOR;
+  static constexpr time::steady_clock::duration DEFAULT_RESET_TIMER = 0_ms;
+  static constexpr time::steady_clock::duration DEFAULT_CANCEL_RESET_TIMER = 500_ms;
+  static constexpr time::milliseconds DEFAULT_RESET_INTEREST_LIFETIME = 1_s;
+  static constexpr time::milliseconds DEFAULT_SYNC_INTEREST_LIFETIME = 1_s;
+  static constexpr time::milliseconds DEFAULT_SYNC_REPLY_FRESHNESS = 1_s;
+  static constexpr time::milliseconds DEFAULT_RECOVERY_INTEREST_LIFETIME = 1_s;
 
   /**
    * @brief Constructor
@@ -114,8 +117,8 @@ public:
         const UpdateCallback& onUpdate,
         const Name& defaultSigningId = DEFAULT_NAME,
         std::shared_ptr<Validator> validator = DEFAULT_VALIDATOR,
-        const time::steady_clock::Duration& resetTimer = DEFAULT_RESET_TIMER,
-        const time::steady_clock::Duration& cancelResetTimer = DEFAULT_CANCEL_RESET_TIMER,
+        const time::steady_clock::duration& resetTimer = DEFAULT_RESET_TIMER,
+        const time::steady_clock::duration& cancelResetTimer = DEFAULT_CANCEL_RESET_TIMER,
         const time::milliseconds& resetInterestLifetime = DEFAULT_RESET_INTEREST_LIFETIME,
         const time::milliseconds& syncInterestLifetime = DEFAULT_SYNC_INTEREST_LIFETIME,
         const time::milliseconds& syncReplyFreshness = DEFAULT_SYNC_REPLY_FRESHNESS,
@@ -442,17 +445,8 @@ private:
   void
   onRecoveryTimeout(const Interest& interest);
 
-public:
-  static const ndn::Name DEFAULT_NAME;
-  static const ndn::Name EMPTY_NAME;
-  static const std::shared_ptr<Validator> DEFAULT_VALIDATOR;
-
 private:
-  using NodeList = std::unordered_map<ndn::Name, NodeInfo>;
-
-  static const ConstBufferPtr EMPTY_DIGEST;
-  static const ndn::name::Component RESET_COMPONENT;
-  static const ndn::name::Component RECOVERY_COMPONENT;
+  using NodeList = std::unordered_map<Name, NodeInfo>;
 
   // Communication
   ndn::Face& m_face;
@@ -487,9 +481,9 @@ private:
   std::uniform_int_distribution<> m_rangeUniformRandom;
   std::uniform_int_distribution<> m_reexpressionJitter;
   /// @brief Timer to send next reset 0 for no reset
-  time::steady_clock::Duration m_resetTimer;
+  time::steady_clock::duration m_resetTimer;
   /// @brief Timer to cancel reset state
-  time::steady_clock::Duration m_cancelResetTimer;
+  time::steady_clock::duration m_cancelResetTimer;
   /// @brief Lifetime of reset interest
   time::milliseconds m_resetInterestLifetime;
   /// @brief Lifetime of sync interest
@@ -503,8 +497,8 @@ private:
   ndn::KeyChain m_keyChain;
   std::shared_ptr<Validator> m_validator;
 
-  int m_instanceId;
-  static int s_instanceCounter;
+  const int m_instanceId;
+  static inline int s_instanceCounter = 0;
 };
 
 #ifdef CHRONOSYNC_WITH_TESTS
