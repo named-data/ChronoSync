@@ -6,20 +6,21 @@
 # (similar to running all test cases), instead of failing at the first error.
 
 PROJ=ChronoSync
+PCFILE=ChronoSync
 
 if [[ -n $DISABLE_HEADERS_CHECK ]]; then
   echo 'Skipping headers check.'
   exit 0
 fi
 
-if has CentOS-8 $NODE_LABELS; then
+if has CentOS $NODE_LABELS; then
   export PKG_CONFIG_PATH=/usr/local/lib64/pkgconfig
 fi
 
 CXX=${CXX:-g++}
 STD=-std=c++17
-CXXFLAGS="-O2 -Wall -Wno-unneeded-internal-declaration -Wno-unused-const-variable $(pkg-config --cflags libndn-cxx $PROJ)"
-INCLUDEDIR="$(pkg-config --variable=includedir $PROJ)"/$PROJ
+CXXFLAGS="-O2 -Wall -Wno-unneeded-internal-declaration -Wno-unused-const-variable $(pkg-config --cflags libndn-cxx $PCFILE)"
+INCLUDEDIR="$(pkg-config --variable=includedir $PCFILE)"/$PROJ
 
 echo "Using: $CXX $STD $CXXFLAGS"
 

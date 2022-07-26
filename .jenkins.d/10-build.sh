@@ -36,6 +36,9 @@ fi
 # Install
 sudo_preserve_env PATH -- ./waf --color=yes install
 
+if has CentOS $NODE_LABELS; then
+    sudo tee /etc/ld.so.conf.d/ndn.conf >/dev/null <<< /usr/local/lib64
+fi
 if has Linux $NODE_LABELS; then
     sudo ldconfig
 fi
