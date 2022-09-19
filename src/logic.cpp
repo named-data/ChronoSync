@@ -44,8 +44,8 @@ const std::vector<uint8_t> EMPTY_DIGEST{
   0xa4, 0x95, 0x99, 0x1b, 0x78, 0x52, 0xb8, 0x55
 };
 
-const name::Component RESET_COMPONENT("reset");
-const name::Component RECOVERY_COMPONENT("recovery");
+const name::Component RESET_COMPONENT{"reset"};
+const name::Component RECOVERY_COMPONENT{"recovery"};
 const size_t NDNLP_EXPECTED_OVERHEAD = 20;
 
 /**
