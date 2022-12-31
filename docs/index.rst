@@ -1,5 +1,5 @@
-ChronoSync - A Synchronization Protocol for NDN
-===============================================
+ChronoSync: A Synchronization Protocol for NDN
+==============================================
 
 .. toctree::
    :hidden:
@@ -7,13 +7,16 @@ ChronoSync - A Synchronization Protocol for NDN
 
    design
 
+Documentation
+-------------
+
 * :doc:`design`
-* `API documentation (doxygen) <doxygen/annotated.html>`_
+* `API documentation (doxygen) <doxygen/annotated.html>`__
 
 Downloading
 -----------
 
-* `Source code git repository <https://github.com/named-data/ChronoSync>`_
+* `Source code git repository <https://github.com/named-data/ChronoSync>`__
 
 License
 -------

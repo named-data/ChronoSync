@@ -1,5 +1,23 @@
 # Release Notes
 
+## Version 0.5.5
+
+- The minimum build requirements have been increased as follows:
+
+  - Either GCC >= 7.4.0 or Clang >= 6.0 is required on Linux
+  - On macOS, Xcode 11.3 or later is recommended; older versions may still work but are
+    not officially supported
+  - Boost >= 1.65.1 and ndn-cxx >= 0.8.1 are required on all platforms
+  - Sphinx 4.0 or later is required to build the documentation
+
+- Switch to C++17
+
+- Fix compilation against the latest version of ndn-cxx
+
+- Stop using the `gold` linker on Linux; prefer instead linking with `lld` if installed
+
+- Upgrade `waf` to version 2.0.24
+
 ## Version 0.5.4
 
 - The build requirements have been increased to require Clang >= 4.0, Xcode >= 9.0,
@@ -55,13 +73,10 @@
 
 - Extend `Socket` and `Logic` API:
 
-   - Allow customization of sync Interest lifetime (Issue #4490)
-
-   - Limit the size of created sync Data and enable ability to
-     customize the maximum packet size through environment variable
-     (Issue #4140)
-
-   - Allow override of the session number
+  - Allow customization of sync Interest lifetime (Issue #4490)
+  - Limit the size of created sync Data and enable ability to customize
+    the maximum packet size through environment variable (Issue #4140)
+  - Allow override of the session number
 
 - Disable use of Exclude filter (preparation for Exclude deprecation
   in NDN and implementation was only partially correct)
