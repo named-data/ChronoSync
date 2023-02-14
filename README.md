@@ -5,7 +5,7 @@
 ![Language](https://img.shields.io/badge/C%2B%2B-17-blue)
 ![Latest version](https://img.shields.io/github/v/tag/named-data/ChronoSync?label=Latest%20version)
 
-> DEPRECATION NOTICE: ChronoSync's design is outdated. We recommend using more recent sync protocols, such as [PSync](https://named-data.net/doc/PSync/current/) or [StateVectorSync](https://named-data.github.io/StateVectorSync/).
+> DEPRECATION NOTICE: ChronoSync's design is outdated. We recommend using more recent sync protocols, such as [PSync](https://github.com/named-data/PSync) or [StateVectorSync](https://named-data.github.io/StateVectorSync/).
 
 In supporting many distributed applications, such as group text messaging, file sharing,
 and joint editing, a basic requirement is the efficient and robust synchronization of
@@ -26,11 +26,11 @@ ChronoSync uses the [ndn-cxx](https://github.com/named-data/ndn-cxx) library.
 
 ### Prerequisites
 
-* [ndn-cxx and its dependencies](https://named-data.net/doc/ndn-cxx/current/INSTALL.html)
+* [ndn-cxx and its dependencies](https://docs.named-data.net/ndn-cxx/current/INSTALL.html)
 
 ### Build
 
-To build ChronoSync from the source:
+To build ChronoSync from source:
 
     ./waf configure
     ./waf
@@ -50,12 +50,11 @@ Please submit any bug reports or feature requests to the
 ## Contributing
 
 We greatly appreciate contributions to the ChronoSync code base, provided that they are
-licensed under the GPL 3.0+ or a compatible license (see below).
-If you are new to the NDN software community, please read the
-[Contributor's Guide](https://github.com/named-data/.github/blob/master/CONTRIBUTING.md)
-to get started.
+licensed under the GNU GPL version 3 or a compatible license.
+If you are new to the NDN software community, please read our [Contributor's Guide](
+https://github.com/named-data/.github/blob/main/CONTRIBUTING.md) to get started.
 
 ## License
 
-ChronoSync is an open source project licensed under the GPL version 3.
-See [`COPYING.md`](COPYING.md) for more information.
+ChronoSync is free software distributed under the GNU General Public License version 3.
+See [`COPYING.md`](COPYING.md) for details.
