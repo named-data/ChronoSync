@@ -36,11 +36,11 @@ To build ChronoSync from source:
     ./waf
     sudo ./waf install
 
-To build on memory constrained platform, please use `./waf -j1` instead of `./waf`. The
-command will disable parallel compilation.
+To build on memory constrained systems, please use `./waf -j1` instead of `./waf`. This
+will disable parallel compilation.
 
 If configured with tests (`./waf configure --with-tests`), the above commands will also
-generate unit tests that can be run with `./build/unit-tests`.
+build a suite of unit tests that can be run with `./build/unit-tests`.
 
 ## Reporting bugs
 
@@ -49,8 +49,8 @@ Please submit any bug reports or feature requests to the
 
 ## Contributing
 
-We greatly appreciate contributions to the ChronoSync code base, provided that they are
-licensed under the GNU GPL version 3 or a compatible license.
+Contributions to ChronoSync are greatly appreciated and can be made through our
+[Gerrit code review site](https://gerrit.named-data.net/).
 If you are new to the NDN software community, please read our [Contributor's Guide](
 https://github.com/named-data/.github/blob/main/CONTRIBUTING.md) to get started.
 
