@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2022 University of California, Los Angeles
+ * Copyright (c) 2012-2023 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -28,7 +28,6 @@ namespace chronosync {
 namespace test {
 
 using std::string;
-using ndn::util::DummyClientFace;
 
 /**
  * @brief Emulate an app that use the Socket class
@@ -41,7 +40,7 @@ class SocketTestApp : noncopyable
 public:
   SocketTestApp(const Name& syncPrefix,
                 const Name& userPrefix,
-                DummyClientFace& face,
+                ndn::DummyClientFace& face,
                 bool isNum)
     : sum(0)
     , socket(syncPrefix,
@@ -155,9 +154,9 @@ public:
     userPrefix[1] = Name("/user1");
     userPrefix[2] = Name("/user2");
 
-    faces[0].reset(new DummyClientFace(io, {true, true}));
-    faces[1].reset(new DummyClientFace(io, {true, true}));
-    faces[2].reset(new DummyClientFace(io, {true, true}));
+    faces[0].reset(new ndn::DummyClientFace(io, {true, true}));
+    faces[1].reset(new ndn::DummyClientFace(io, {true, true}));
+    faces[2].reset(new ndn::DummyClientFace(io, {true, true}));
 
     for (int i = 0; i < 3; i++) {
       readInterestOffset[i] = 0;
@@ -239,7 +238,7 @@ public:
   Name userPrefix[3];
   Name sessionName[3];
 
-  std::unique_ptr<DummyClientFace> faces[3];
+  std::unique_ptr<ndn::DummyClientFace> faces[3];
   shared_ptr<SocketTestApp> app[3];
 
   size_t readInterestOffset[3];

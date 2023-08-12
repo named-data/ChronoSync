@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2018 University of California, Los Angeles
+ * Copyright (c) 2012-2023 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -17,11 +17,11 @@
  * ChronoSync, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <ndn-cxx/interest.hpp>
 #include <ndn-cxx/data.hpp>
+#include <ndn-cxx/interest.hpp>
 #include <ndn-cxx/lp/nack.hpp>
-#include <ndn-cxx/util/dummy-client-face.hpp>
 #include <ndn-cxx/security/key-chain.hpp>
+#include <ndn-cxx/util/dummy-client-face.hpp>
 
 #ifndef NDN_CHRONOSYNC_UNIT_TESTS_DUMMY_FORWARDER_HPP
 #define NDN_CHRONOSYNC_UNIT_TESTS_DUMMY_FORWARDER_HPP
@@ -55,7 +55,7 @@ public:
 private:
   boost::asio::io_service& m_io;
   KeyChain& m_keyChain;
-  std::vector<shared_ptr<util::DummyClientFace>> m_faces;
+  std::vector<std::shared_ptr<DummyClientFace>> m_faces;
 };
 
 } // namespace chronosync

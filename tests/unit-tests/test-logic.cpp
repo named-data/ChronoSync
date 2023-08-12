@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2022 University of California, Los Angeles
+ * Copyright (c) 2012-2023 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(Constructor)
 {
   Name syncPrefix("/ndn/broadcast/sync");
   Name userPrefix("/user");
-  ndn::util::DummyClientFace face(io, {true, true});
+  ndn::DummyClientFace face(io, {true, true});
   BOOST_REQUIRE_NO_THROW(Logic(face, syncPrefix, userPrefix, bind(onUpdate, _1)));
 }
 
@@ -370,7 +370,7 @@ BOOST_FIXTURE_TEST_CASE(TrimState, ndn::tests::IdentityManagementTimeFixture)
 {
   Name syncPrefix("/ndn/broadcast/sync");
   Name userPrefix("/user");
-  ndn::util::DummyClientFace face;
+  ndn::DummyClientFace face;
   Logic logic(face, syncPrefix, userPrefix, bind(onUpdate, _1));
 
   State state;
@@ -397,7 +397,7 @@ BOOST_FIXTURE_TEST_CASE(VeryLargeState, ndn::tests::IdentityManagementTimeFixtur
   addIdentity("/bla");
   Name syncPrefix("/ndn/broadcast/sync");
   Name userPrefix("/user");
-  ndn::util::DummyClientFace face;
+  ndn::DummyClientFace face;
   Logic logic(face, syncPrefix, userPrefix, bind(onUpdate, _1));
 
   State state;

@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2018 University of California, Los Angeles
+ * Copyright (c) 2012-2023 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -33,9 +33,9 @@ DummyForwarder::DummyForwarder(boost::asio::io_service& io, KeyChain& keyChain)
 Face&
 DummyForwarder::addFace()
 {
-  auto face = std::make_shared<util::DummyClientFace>(m_io, m_keyChain,
-                                                      util::DummyClientFace::Options{true, true});
-  util::DummyClientFace* self = &*face; // to prevent memory leak
+  auto face = std::make_shared<DummyClientFace>(m_io, m_keyChain, DummyClientFace::Options{true, true});
+  DummyClientFace* self = &*face; // to prevent memory leak
+
   face->onSendInterest.connect([this, self] (const Interest& interest) {
       Interest i(interest);
       for (auto& otherFace : m_faces) {
@@ -45,6 +45,7 @@ DummyForwarder::addFace()
         m_io.post([=] { otherFace->receive(i); });
       }
     });
+
   face->onSendData.connect([this, self] (const Data& data) {
       Data d(data);
       for (auto& otherFace : m_faces) {
