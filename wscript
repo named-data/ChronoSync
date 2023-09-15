@@ -1,7 +1,8 @@
 # -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 
-from waflib import Context, Logs, Utils
-import os, subprocess
+import os
+import subprocess
+from waflib import Context, Logs
 
 VERSION = '0.5.5'
 APPNAME = 'ChronoSync'
@@ -36,11 +37,10 @@ def configure(conf):
     conf.check_cfg(package='libndn-cxx', args=['libndn-cxx >= 0.8.1', '--cflags', '--libs'],
                    uselib_store='NDN_CXX', pkg_config_path=pkg_config_path)
 
-    boost_libs = ['system', 'iostreams']
-    if conf.env.WITH_TESTS:
-        boost_libs.append('unit_test_framework')
+    conf.check_boost(lib='iostreams', mt=True)
 
-    conf.check_boost(lib=boost_libs, mt=True)
+    if conf.env.WITH_TESTS:
+        conf.check_boost(lib='filesystem unit_test_framework', mt=True, uselib_store='BOOST_TESTS')
 
     conf.check_compiler_flags()
 
@@ -61,27 +61,25 @@ def configure(conf):
     conf.write_config_header('src/detail/config.hpp', define_prefix='CHRONOSYNC_')
 
 def build(bld):
-    bld.shlib(target='ChronoSync',
-              vnum=VERSION,
-              cnum=VERSION,
-              source=bld.path.ant_glob('src/**/*.cpp'),
-              use='NDN_CXX BOOST',
-              includes='src/detail',
-              export_includes='src src/detail')
+    bld.shlib(
+        target='ChronoSync',
+        vnum=VERSION,
+        cnum=VERSION,
+        source=bld.path.ant_glob('src/**/*.cpp'),
+        use='BOOST NDN_CXX',
+        includes='src/detail',
+        export_includes='src src/detail')
 
     if bld.env.WITH_TESTS:
         bld.recurse('tests')
 
+    # Install header files
     srcdir = bld.path.find_dir('src')
     bld.install_files('${INCLUDEDIR}/ChronoSync',
                       srcdir.ant_glob('**/*.hpp'),
                       cwd=srcdir,
                       relative_trick=True)
-
-    bld.install_files('${INCLUDEDIR}/ChronoSync',
-                      'src/detail/config.hpp',
-                      cwd=bld.path.get_bld().find_dir('src'),
-                      relative_trick=True)
+    bld.install_files('${INCLUDEDIR}/ChronoSync/detail', 'src/detail/config.hpp')
 
     bld(features='subst',
         source='ChronoSync.pc.in',
@@ -140,16 +138,16 @@ def version(ctx):
     # first, try to get a version string from git
     gotVersionFromGit = False
     try:
-        cmd = ['git', 'describe', '--always', '--match', '%s*' % GIT_TAG_PREFIX]
-        out = subprocess.check_output(cmd, universal_newlines=True).strip()
+        cmd = ['git', 'describe', '--always', '--match', f'{GIT_TAG_PREFIX}*']
+        out = subprocess.run(cmd, capture_output=True, check=True, text=True).stdout.strip()
         if out:
             gotVersionFromGit = True
             if out.startswith(GIT_TAG_PREFIX):
                 Context.g_module.VERSION = out.lstrip(GIT_TAG_PREFIX)
             else:
                 # no tags matched
-                Context.g_module.VERSION = '%s-commit-%s' % (VERSION_BASE, out)
-    except (OSError, subprocess.CalledProcessError):
+                Context.g_module.VERSION = f'{VERSION_BASE}-commit-{out}'
+    except (OSError, subprocess.SubprocessError):
         pass
 
     versionFile = ctx.path.find_node('VERSION.info')
@@ -167,14 +165,14 @@ def version(ctx):
                 # already up-to-date
                 return
         except EnvironmentError as e:
-            Logs.warn('%s exists but is not readable (%s)' % (versionFile, e.strerror))
+            Logs.warn(f'{versionFile} exists but is not readable ({e.strerror})')
     else:
         versionFile = ctx.path.make_node('VERSION.info')
 
     try:
         versionFile.write(Context.g_module.VERSION)
     except EnvironmentError as e:
-        Logs.warn('%s is not writable (%s)' % (versionFile, e.strerror))
+        Logs.warn(f'{versionFile} is not writable ({e.strerror})')
 
 def dist(ctx):
     ctx.algo = 'tar.xz'

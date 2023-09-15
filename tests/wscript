@@ -3,9 +3,10 @@
 top = '..'
 
 def build(bld):
-    bld.program(target='../unit-tests',
-                name='unit-tests',
-                source=bld.path.ant_glob('**/*.cpp'),
-                use='ChronoSync',
-                includes='..',
-                install_path=None)
+    bld.program(
+        target=f'{top}/unit-tests',
+        name='unit-tests',
+        source=bld.path.ant_glob('**/*.cpp'),
+        use='BOOST_TESTS ChronoSync',
+        includes=top,
+        install_path=None)
