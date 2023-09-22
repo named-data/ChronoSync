@@ -19,12 +19,13 @@
 
 #include "dummy-forwarder.hpp"
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/post.hpp>
 
 namespace ndn {
 namespace chronosync {
 
-DummyForwarder::DummyForwarder(boost::asio::io_service& io, KeyChain& keyChain)
+DummyForwarder::DummyForwarder(boost::asio::io_context& io, KeyChain& keyChain)
   : m_io(io)
   , m_keyChain(keyChain)
 {
@@ -42,7 +43,7 @@ DummyForwarder::addFace()
         if (self == &*otherFace) {
           continue;
         }
-        m_io.post([=] { otherFace->receive(i); });
+        boost::asio::post(m_io, [=] { otherFace->receive(i); });
       }
     });
 
@@ -52,7 +53,7 @@ DummyForwarder::addFace()
         if (self == &*otherFace) {
           continue;
         }
-        m_io.post([=] { otherFace->receive(d); });
+        boost::asio::post(m_io, [=] { otherFace->receive(d); });
       }
     });
 
@@ -62,7 +63,7 @@ DummyForwarder::addFace()
         if (self == &*otherFace) {
           continue;
         }
-        m_io.post([=] { otherFace->receive(n); });
+        boost::asio::post(m_io, [=] { otherFace->receive(n); });
       }
     });
 

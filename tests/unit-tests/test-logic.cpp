@@ -363,7 +363,7 @@ BOOST_AUTO_TEST_CASE(CancelOutstandingEvents)
   systemClock->advance(ndn::time::hours(1));
 
   BOOST_CHECK_EQUAL(io.poll(), 0); // no delayed handlers are expected
-  BOOST_CHECK_EQUAL(io.stopped(), true); // io_service expected to be stopped
+  BOOST_CHECK_EQUAL(io.stopped(), true); // io_context expected to be stopped
 }
 
 BOOST_FIXTURE_TEST_CASE(TrimState, ndn::tests::IdentityManagementTimeFixture)

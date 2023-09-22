@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2022 University of California, Los Angeles
+ * Copyright (c) 2012-2023 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -22,7 +22,7 @@
 
 #include <ndn-cxx/util/time-unit-test-clock.hpp>
 
-#include <boost/asio.hpp>
+#include <boost/asio/io_context.hpp>
 
 namespace ndn::tests {
 
@@ -42,14 +42,15 @@ public:
   }
 
   void
-  advanceClocks(const time::nanoseconds& tick, size_t nTicks = 1)
+  advanceClocks(time::nanoseconds tick, size_t nTicks = 1)
   {
     for (size_t i = 0; i < nTicks; ++i) {
       steadyClock->advance(tick);
       systemClock->advance(tick);
 
-      if (io.stopped())
-        io.reset();
+      if (io.stopped()) {
+        io.restart();
+      }
       io.poll();
     }
   }
@@ -57,7 +58,7 @@ public:
 public:
   shared_ptr<time::UnitTestSteadyClock> steadyClock;
   shared_ptr<time::UnitTestSystemClock> systemClock;
-  boost::asio::io_service io;
+  boost::asio::io_context io;
 };
 
 } // namespace ndn::tests

@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2021 University of California, Los Angeles
+ * Copyright (c) 2012-2023 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -27,12 +27,12 @@
 
 #include "interest-container.hpp"
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
 
 namespace chronosync {
 
 /**
- * @brief A table to keep unsatisfied Sync Interest
+ * @brief A table to keep unsatisfied Sync Interests.
  */
 class InterestTable : noncopyable
 {
@@ -47,7 +47,7 @@ public:
   using const_iterator = InterestContainer::const_iterator;
 
   explicit
-  InterestTable(boost::asio::io_service& io);
+  InterestTable(boost::asio::io_context& io);
 
   ~InterestTable();
 

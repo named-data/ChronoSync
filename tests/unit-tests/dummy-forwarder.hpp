@@ -38,7 +38,7 @@ namespace chronosync {
 class DummyForwarder
 {
 public:
-  DummyForwarder(boost::asio::io_service& io, KeyChain& keyChain);
+  DummyForwarder(boost::asio::io_context& io, KeyChain& keyChain);
 
   Face&
   addFace();
@@ -53,7 +53,7 @@ public:
   removeFaces();
 
 private:
-  boost::asio::io_service& m_io;
+  boost::asio::io_context& m_io;
   KeyChain& m_keyChain;
   std::vector<std::shared_ptr<DummyClientFace>> m_faces;
 };

@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2022 University of California, Los Angeles
+ * Copyright (c) 2012-2023 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -72,7 +72,7 @@ public:
   Name syncPrefix;
   Name userPrefix[3];
 
-  boost::asio::io_service io;
+  boost::asio::io_context io;
   shared_ptr<ndn::Face> face;
   ndn::Scheduler scheduler;
   shared_ptr<Handler> handler;

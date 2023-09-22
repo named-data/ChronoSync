@@ -38,6 +38,10 @@ def configure(conf):
                    uselib_store='NDN_CXX', pkg_config_path=pkg_config_path)
 
     conf.check_boost(lib='iostreams', mt=True)
+    if conf.env.BOOST_VERSION_NUMBER < 107100:
+        conf.fatal('The minimum supported version of Boost is 1.71.0.\n'
+                   'Please upgrade your distribution or manually install a newer version of Boost.\n'
+                   'For more information, see https://redmine.named-data.net/projects/nfd/wiki/Boost')
 
     if conf.env.WITH_TESTS:
         conf.check_boost(lib='filesystem unit_test_framework', mt=True, uselib_store='BOOST_TESTS')
