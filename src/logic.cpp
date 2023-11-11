@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2022 University of California, Los Angeles
+ * Copyright (c) 2012-2023 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -101,11 +101,11 @@ Logic::Logic(ndn::Face& face,
   , m_syncPrefix(syncPrefix)
   , m_syncReset(Name(syncPrefix).append("reset"))
   , m_defaultUserPrefix(defaultUserPrefix)
-  , m_interestTable(m_face.getIoService())
+  , m_interestTable(m_face.getIoContext())
   , m_isInReset(false)
   , m_needPeriodReset(resetTimer > time::nanoseconds::zero())
   , m_onUpdate(onUpdate)
-  , m_scheduler(m_face.getIoService())
+  , m_scheduler(m_face.getIoContext())
   , m_rng(ndn::random::getRandomNumberEngine())
   , m_rangeUniformRandom(100, 500)
   , m_reexpressionJitter(100, 500)
