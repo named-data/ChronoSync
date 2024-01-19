@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2023 University of California, Los Angeles
+ * Copyright (c) 2012-2024 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -594,7 +594,7 @@ Logic::sendSyncInterest()
 
   m_pendingSyncInterestName = interestName;
 
-#ifdef _DEBUG
+#ifndef NDEBUG
   printDigest(m_state.getRootDigest());
 #endif
 
