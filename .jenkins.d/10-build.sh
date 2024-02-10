@@ -35,9 +35,9 @@ fi
 # Install
 sudo ./waf --color=yes install
 
-if [[ $ID_LIKE == *fedora* ]]; then
-    sudo tee /etc/ld.so.conf.d/ndn.conf >/dev/null <<< /usr/local/lib64
-fi
 if [[ $ID_LIKE == *linux* ]]; then
+    if [[ $(uname -m) == x86_64 && -d /usr/lib64 ]]; then
+        sudo tee /etc/ld.so.conf.d/ndn.conf >/dev/null <<< /usr/local/lib64
+    fi
     sudo ldconfig
 fi
