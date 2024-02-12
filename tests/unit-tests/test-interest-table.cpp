@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2022 University of California, Los Angeles
+ * Copyright (c) 2012-2024 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -24,8 +24,7 @@
 
 #include <unistd.h>
 
-namespace chronosync {
-namespace test {
+namespace chronosync::tests {
 
 class InterestTableFixture : public ndn::tests::UnitTestTimeFixture
 {
@@ -71,7 +70,7 @@ public:
   ndn::ConstBufferPtr digest3;
 };
 
-BOOST_FIXTURE_TEST_SUITE(InterestTableTest, InterestTableFixture)
+BOOST_FIXTURE_TEST_SUITE(InterestTableTests, InterestTableFixture)
 
 BOOST_AUTO_TEST_CASE(Container)
 {
@@ -143,5 +142,4 @@ BOOST_AUTO_TEST_CASE(Expire)
 
 BOOST_AUTO_TEST_SUITE_END()
 
-} // namespace test
-} // namespace chronosync
+} // namespace chronosync::tests

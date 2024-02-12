@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2019 University of California, Los Angeles
+ * Copyright (c) 2012-2024 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -22,8 +22,7 @@
 
 #include "tests/boost-test.hpp"
 
-namespace chronosync {
-namespace test {
+namespace chronosync::tests {
 
 BOOST_AUTO_TEST_SUITE(DiffStateTests)
 
@@ -137,5 +136,4 @@ BOOST_AUTO_TEST_CASE(Container)
 
 BOOST_AUTO_TEST_SUITE_END()
 
-} // namespace test
-} // namespace chronosync
+} // namespace chronosync::tests

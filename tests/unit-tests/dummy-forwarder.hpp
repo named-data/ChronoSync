@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2023 University of California, Los Angeles
+ * Copyright (c) 2012-2024 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -26,11 +26,10 @@
 #ifndef NDN_CHRONOSYNC_UNIT_TESTS_DUMMY_FORWARDER_HPP
 #define NDN_CHRONOSYNC_UNIT_TESTS_DUMMY_FORWARDER_HPP
 
-namespace ndn {
-namespace chronosync {
+namespace chronosync::tests {
 
 /**
- * @brief Very basic implementation of the dummy forwarder
+ * @brief Very basic implementation of a dummy forwarder.
  *
  * Interests expressed by any added face, will be forwarded to all other faces.
  * Similarly, any pushed data, will be pushed to all other faces.
@@ -38,12 +37,12 @@ namespace chronosync {
 class DummyForwarder
 {
 public:
-  DummyForwarder(boost::asio::io_context& io, KeyChain& keyChain);
+  DummyForwarder(boost::asio::io_context& io, ndn::KeyChain& keyChain);
 
-  Face&
+  ndn::Face&
   addFace();
 
-  Face&
+  ndn::Face&
   getFace(size_t nFace)
   {
     return *m_faces.at(nFace);
@@ -54,11 +53,10 @@ public:
 
 private:
   boost::asio::io_context& m_io;
-  KeyChain& m_keyChain;
-  std::vector<std::shared_ptr<DummyClientFace>> m_faces;
+  ndn::KeyChain& m_keyChain;
+  std::vector<std::shared_ptr<ndn::DummyClientFace>> m_faces;
 };
 
-} // namespace chronosync
-} // namespace ndn
+} // namespace chronosync::tests
 
 #endif // NDN_CHRONOSYNC_UNIT_TESTS_DUMMY_FORWARDER_HPP

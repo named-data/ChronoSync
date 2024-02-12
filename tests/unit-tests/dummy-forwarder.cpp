@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2023 University of California, Los Angeles
+ * Copyright (c) 2012-2024 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -22,23 +22,24 @@
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/post.hpp>
 
-namespace ndn {
-namespace chronosync {
+namespace chronosync::tests {
 
-DummyForwarder::DummyForwarder(boost::asio::io_context& io, KeyChain& keyChain)
+using ndn::DummyClientFace;
+
+DummyForwarder::DummyForwarder(boost::asio::io_context& io, ndn::KeyChain& keyChain)
   : m_io(io)
   , m_keyChain(keyChain)
 {
 }
 
-Face&
+ndn::Face&
 DummyForwarder::addFace()
 {
   auto face = std::make_shared<DummyClientFace>(m_io, m_keyChain, DummyClientFace::Options{true, true});
   DummyClientFace* self = &*face; // to prevent memory leak
 
-  face->onSendInterest.connect([this, self] (const Interest& interest) {
-      Interest i(interest);
+  face->onSendInterest.connect([this, self] (const auto& interest) {
+      ndn::Interest i(interest);
       for (auto& otherFace : m_faces) {
         if (self == &*otherFace) {
           continue;
@@ -47,8 +48,8 @@ DummyForwarder::addFace()
       }
     });
 
-  face->onSendData.connect([this, self] (const Data& data) {
-      Data d(data);
+  face->onSendData.connect([this, self] (const auto& data) {
+      ndn::Data d(data);
       for (auto& otherFace : m_faces) {
         if (self == &*otherFace) {
           continue;
@@ -57,8 +58,8 @@ DummyForwarder::addFace()
       }
     });
 
-  face->onSendNack.connect([this, self] (const lp::Nack& nack) {
-      lp::Nack n(nack);
+  face->onSendNack.connect([this, self] (const auto& nack) {
+      ndn::lp::Nack n(nack);
       for (auto& otherFace : m_faces) {
         if (self == &*otherFace) {
           continue;
@@ -77,5 +78,4 @@ DummyForwarder::removeFaces()
   m_faces.clear();
 }
 
-} // namespace chronosync
-} // namespace ndn
+} // namespace chronosync::tests

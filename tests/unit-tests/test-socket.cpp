@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2023 University of California, Los Angeles
+ * Copyright (c) 2012-2024 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -24,8 +24,7 @@
 
 #include <ndn-cxx/util/dummy-client-face.hpp>
 
-namespace chronosync {
-namespace test {
+namespace chronosync::tests {
 
 using std::string;
 
@@ -51,7 +50,7 @@ public:
              Logic::DEFAULT_NAME,
              Logic::DEFAULT_VALIDATOR,
              Logic::DEFAULT_SYNC_INTEREST_LIFETIME,
-             name::Component::fromEscapedString("override"))
+             name::Component::fromUri("override"))
   {
   }
 
@@ -445,5 +444,4 @@ BOOST_AUTO_TEST_CASE(BasicDataWithAppSeq)
 
 BOOST_AUTO_TEST_SUITE_END()
 
-} // namespace test
-} // namespace chronosync
+} // namespace chronosync::tests

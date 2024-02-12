@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2023 University of California, Los Angeles
+ * Copyright (c) 2012-2024 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -26,8 +26,7 @@
 
 #include <ndn-cxx/util/random.hpp>
 
-namespace chronosync {
-namespace test {
+namespace chronosync::tests {
 
 class Handler
 {
@@ -81,7 +80,7 @@ public:
   Name syncPrefix;
   Name userPrefix[4];
 
-  ndn::chronosync::DummyForwarder fw;
+  DummyForwarder fw;
   // std::unique_ptr<DummyClientFace> faces[4];
   shared_ptr<Handler> handler[4];
 
@@ -456,5 +455,4 @@ BOOST_FIXTURE_TEST_CASE(MaxPacketCustomization, MaxPacketCustomizationFixture)
 
 BOOST_AUTO_TEST_SUITE_END()
 
-} // namespace test
-} // namespace chronosync
+} // namespace chronosync::tests
