@@ -410,7 +410,6 @@ BOOST_FIXTURE_TEST_CASE(VeryLargeState, ndn::tests::IdentityManagementTimeFixtur
     }
     state.update(prefix, ndn::random::generateWord32());
   }
-  BOOST_TEST_MESSAGE("Got state with " << state.getLeaves().size() << " leaves");
 
   auto data = logic.encodeSyncReply(userPrefix, "/fake/prefix/of/interest", state);
   BOOST_CHECK_LE(data.wireEncode().size(), ndn::MAX_NDN_PACKET_SIZE);

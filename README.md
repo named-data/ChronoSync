@@ -5,7 +5,10 @@
 ![Language](https://img.shields.io/badge/C%2B%2B-17-blue)
 ![Latest version](https://img.shields.io/github/v/tag/named-data/ChronoSync?label=Latest%20version)
 
-> DEPRECATION NOTICE: ChronoSync's design is outdated. We recommend using more recent sync protocols, such as [PSync](https://github.com/named-data/PSync) or [StateVectorSync](https://named-data.github.io/StateVectorSync/).
+> [!NOTE]
+> DEPRECATION NOTICE: ChronoSync's design is outdated. We recommend using more recent
+> sync protocols, such as [PSync](https://docs.named-data.net/PSync/)
+> or [StateVectorSync](https://named-data.github.io/StateVectorSync/).
 
 In supporting many distributed applications, such as group text messaging, file sharing,
 and joint editing, a basic requirement is the efficient and robust synchronization of
