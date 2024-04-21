@@ -10,7 +10,7 @@ import sys
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'ChronoSync: A Synchronization Protocol for NDN'
-copyright = 'Copyright © 2012-2023 Regents of the University of California.'
+copyright = 'Copyright © 2012-2024 Regents of the University of California.'
 author = 'Named Data Networking Project'
 
 # The short X.Y version.
