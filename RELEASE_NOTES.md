@@ -1,5 +1,21 @@
 # Release Notes
 
+## Version 0.5.6
+
+- The build dependencies have been increased as follows:
+
+  - GCC >= 9.3 or Clang >= 7.0 are strongly recommended on Linux; GCC 8.x is also known
+    to work but is not officially supported
+  - Xcode 13 or later is recommended on macOS; older versions may still work but are not
+    officially supported
+  - Boost >= 1.71.0 and ndn-cxx >= 0.9.0 are required on all platforms
+
+- Fix compilation against the latest version of ndn-cxx
+
+- Fix building the documentation with Python 3.12
+
+- Upgrade `waf` to version 2.0.27
+
 ## Version 0.5.5
 
 - The minimum build requirements have been increased as follows:

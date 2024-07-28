@@ -48,7 +48,7 @@ def addExtensionIfExists(extension: str):
 addExtensionIfExists('sphinxcontrib.doxylink')
 
 templates_path = ['_templates']
-exclude_patterns = ['Thumbs.db', '.DS_Store', 'RELEASE_NOTES.rst']
+exclude_patterns = ['Thumbs.db', '.DS_Store']
 
 
 # -- Options for HTML output -------------------------------------------------
