@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2023 University of California, Los Angeles
+ * Copyright (c) 2012-2024 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -20,7 +20,9 @@
 #include "identity-management-fixture.hpp"
 
 #include <ndn-cxx/util/io.hpp>
-#include <boost/filesystem.hpp>
+
+#include <filesystem>
+#include <system_error>
 
 namespace ndn::tests {
 
@@ -32,9 +34,9 @@ IdentityManagementFixture::IdentityManagementFixture()
 
 IdentityManagementFixture::~IdentityManagementFixture()
 {
-  boost::system::error_code ec;
+  std::error_code ec;
   for (const auto& certFile : m_certFiles) {
-    boost::filesystem::remove(certFile, ec); // ignore error
+    std::filesystem::remove(certFile, ec); // ignore error
   }
 }
 

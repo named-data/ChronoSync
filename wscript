@@ -44,7 +44,7 @@ def configure(conf):
                    'For more information, see https://redmine.named-data.net/projects/nfd/wiki/Boost')
 
     if conf.env.WITH_TESTS:
-        conf.check_boost(lib='filesystem unit_test_framework', mt=True, uselib_store='BOOST_TESTS')
+        conf.check_boost(lib='unit_test_framework', mt=True, uselib_store='BOOST_TESTS')
 
     conf.check_compiler_flags()
 
