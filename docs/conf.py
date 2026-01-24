@@ -10,7 +10,7 @@ import sys
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'ChronoSync: A Synchronization Protocol for NDN'
-copyright = 'Copyright © 2012-2024 Regents of the University of California.'
+copyright = '2012-2026, Regents of the University of California'
 author = 'Named Data Networking Project'
 
 # The short X.Y version.
@@ -29,7 +29,7 @@ today_fmt = '%Y-%m-%d'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-needs_sphinx = '4.0'
+needs_sphinx = '7.0'
 extensions = [
     'sphinx.ext.extlinks',
     'sphinx.ext.todo',
@@ -48,7 +48,13 @@ def addExtensionIfExists(extension: str):
 addExtensionIfExists('sphinxcontrib.doxylink')
 
 templates_path = ['_templates']
-exclude_patterns = ['Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+
+# Disable syntax highlighting of code blocks by default.
+highlight_language = 'none'
+
+# Generate warnings for all missing references.
+nitpicky = True
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -64,9 +70,6 @@ html_static_path = ['_static']
 
 html_copy_source = False
 html_show_sourcelink = False
-
-# Disable syntax highlighting of code blocks by default.
-highlight_language = 'none'
 
 
 # -- Misc options ------------------------------------------------------------
