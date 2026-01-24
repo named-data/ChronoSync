@@ -3,7 +3,7 @@ libdir=@LIBDIR@
 includedir=@INCLUDEDIR@
 
 Name: ChronoSync
-Description: NDN ChronoSync library
+Description: NDN ChronoSync Library
 Version: @VERSION@
 Libs: -L${libdir} -lChronoSync
 Cflags: -I${includedir}
