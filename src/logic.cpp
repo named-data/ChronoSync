@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2024 University of California, Los Angeles
+ * Copyright (c) 2012-2026 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -548,8 +548,11 @@ Logic::insertToDiffLog(DiffStatePtr commit, ConstBufferPtr previousRoot)
 {
   CHRONO_LOG_DBG(">> Logic::insertToDiffLog");
   // Connect to the history
-  if (!m_log.empty())
-    (*m_log.find(previousRoot))->setNext(commit);
+  if (!m_log.empty()) {
+    if (auto it = m_log.find(previousRoot); it != m_log.end()) {
+      (*it)->setNext(commit);
+    }
+  }
 
   // Insert the commit
   m_log.erase(commit->getRootDigest());
