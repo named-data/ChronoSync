@@ -1,6 +1,6 @@
 /* -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2024 University of California, Los Angeles
+ * Copyright (c) 2012-2026 University of California, Los Angeles
  *
  * This file is part of ChronoSync, synchronization library for distributed realtime
  * applications for NDN.
@@ -22,6 +22,7 @@
 #include <ndn-cxx/util/io.hpp>
 
 #include <filesystem>
+#include <fstream>
 #include <system_error>
 
 namespace ndn::tests {
@@ -68,7 +69,8 @@ IdentityManagementFixture::saveIdentityCertificate(const Name& identity, const s
 
   m_certFiles.push_back(filename);
   try {
-    ndn::io::save(cert, filename);
+    std::ofstream file(filename);
+    ndn::io::saveTlv(cert, file, ndn::io::BASE64);
     return true;
   }
   catch (const ndn::io::Error&) {
